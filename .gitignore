@@ -20,4 +20,5 @@ Cargo.lock
 
 .svelte-kit/
 package
+node_modules
 

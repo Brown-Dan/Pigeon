@@ -2,9 +2,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::collections::HashMap;
-use std::iter::Map;
+
 use reqwest;
-use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
 
 fn main() {
@@ -19,7 +18,7 @@ struct Response {
     status: u16,
     size: String,
     body: String,
-    headers: HashMap<String, String>
+    headers: HashMap<String, String>,
 }
 
 #[tauri::command]
@@ -47,8 +46,7 @@ async fn send_request(url: String) -> String {
         status,
         body,
         size,
-        headers: headers_map
-
+        headers: headers_map,
     };
     return serde_json::to_string(&my_response).expect("Error");
 }
