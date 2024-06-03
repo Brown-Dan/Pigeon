@@ -39,13 +39,19 @@
 		numOfParams = 0;
 	}
 
-	function shouldDisableParamInput(num: number): boolean {
-		let element = <HTMLInputElement>document.getElementById('param_checkbox' + num);
-		console.log(num)
-		if (element) {
-			return !element.checked;
+	function disable_param(num: number) {
+		let param_name = <HTMLInputElement>document.getElementById('param_name_' + num);
+		let param_value = <HTMLInputElement>document.getElementById('param_value_' + num);
+		if (param_name.getAttribute('disabled') === 'disabled') {
+			param_name.removeAttribute('disabled');
+		} else {
+			param_name.setAttribute('disabled', 'disabled');
 		}
-		return false;
+		if (param_value.getAttribute('disabled') === 'disabled') {
+			param_value.removeAttribute('disabled');
+		} else {
+			param_value.setAttribute('disabled', 'disabled');
+		}
 	}
 
 </script>
@@ -81,10 +87,11 @@
 					</div>
 					{#each { length: numOfParams } as _, i}
 						<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-3">
-							<input type="text" placeholder="key" disabled={shouldDisableParamInput(i)} />
-							<input type="text" placeholder="value" disabled={shouldDisableParamInput(i)} />
-							<div id="{'param_checkbox' + i}" class="input-group-shim"><input class="checkbox" type="checkbox"
-																																							 checked /></div>
+							<input type="text" placeholder="name" id={"param_name_" + i} disabled="" />
+							<input type="text" placeholder="value" id={"param_value_" + i} disabled="" />
+							<div class="input-group-shim"><input on:change={() => disable_param(i)} id="{'param_checkbox' + i}"
+																									 class="checkbox" type="checkbox"
+																									 checked /></div>
 						</div>
 					{/each}
 				{:else if requestTabSet === 2}
