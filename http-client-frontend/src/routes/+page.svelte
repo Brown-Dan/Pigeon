@@ -1,20 +1,26 @@
 <script lang="ts">
 	import { invoke } from '@tauri-apps/api/tauri';
-	import { TabGroup, Tab, TabAnchor } from '@skeletonlabs/skeleton';
-	import { CodeBlock } from '@skeletonlabs/skeleton';
+	import { clipboard, CodeBlock, storeHighlightJs, Tab, TabGroup } from '@skeletonlabs/skeleton';
+	import hljs from 'highlight.js/lib/core';
+	import json from 'highlight.js/lib/languages/json';
+
+	hljs.registerLanguage('json', json);
+	storeHighlightJs.set(hljs);
 
 	let response: JSON;
+	let headers: Map<any, any>;
 	let tabSet: number = 0;
+	const exampleData: string = 'https://httpbin.org/get';
 
 	function send_request() {
-		const url: string =  (<HTMLInputElement>document.getElementById("url")).value;
-		console.log(url)
-		 invoke("send_request", { url }).then(value => {
-			 if (typeof value === 'string') {
-				 response = JSON.parse(value);
-			 }
-			 console.log(value);
-		 }
+		const url: string = (<HTMLInputElement>document.getElementById('url')).value;
+		console.log(url);
+		invoke('send_request', { url }).then(value => {
+				if (typeof value === 'string') {
+					response = JSON.parse(value);
+				}
+				headers = new Map(Object.entries(response.headers));
+			}
 		);
 	}
 </script>
@@ -34,7 +40,7 @@
 			{#if response}
 				<p>Response Status: {response.status}</p>
 			{:else}
-					<p>Response Status: </p>
+				<p>Response Status: </p>
 			{/if}
 		</div>
 		<TabGroup>
@@ -46,19 +52,46 @@
 			<!-- Tab Panels --->
 			<svelte:fragment slot="panel">
 				{#if tabSet === 0}
-					<div class="border-white bg-slate-200 min-w-screen min-h-screen text-black rounded-2xl text-wrap p-5">
+					<div class="border-white min-w-screen min-h-screen text-black rounded-2xl text-wrap p-5">
 						{#if response}
-							<CodeBlock language="json" code={response.body}></CodeBlock>
+							<CodeBlock lineNumbers=True language="json" code={response.body}></CodeBlock>
 						{/if}
 					</div>
 				{:else if tabSet === 1}
-					<CodeBlock language="html" code={`<div>This is meta</div>`}></CodeBlock>
+					<div class="table-container">
+						<table class="table table-hover col-span-2">
+							<thead>
+							<tr>
+								<th>Name</th>
+								<th>Value</th>
+							</tr>
+							</thead>
+							<tbody>
+							{#if headers}
+								{#each [...headers] as [key, value]}
+									<tr>
+										<td>{key}</td>
+										<td>{value}</td>
+									</tr>
+								{/each}
+							{/if}
+							</tbody>
+							<tfoot>
+							<tr class="col-span-2">
+								<td>
+									<button use:clipboard={exampleData}>Copy</button>
+								</td>
+							</tr>
+							</tfoot>
+						</table>
+					</div>
 				{:else if tabSet === 2}
-					(tab panel 3 contents)
+					Content
 				{/if}
 			</svelte:fragment>
 		</TabGroup>
 	</div>
 </div>
+
 
 

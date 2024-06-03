@@ -1,7 +1,10 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::collections::HashMap;
+use std::iter::Map;
 use reqwest;
+use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
 
 fn main() {
@@ -15,7 +18,8 @@ fn main() {
 struct Response {
     status: u16,
     size: String,
-    body: String
+    body: String,
+    headers: HashMap<String, String>
 }
 
 #[tauri::command]
@@ -26,6 +30,14 @@ async fn send_request(url: String) -> String {
         Err(e) => return e.to_string(),
     };
     let status = response.status().as_u16();
+    let headers = response.headers();
+
+    let mut headers_map = HashMap::new();
+    for (key, value) in headers.iter() {
+        let header_value = value.to_str().unwrap().to_string();
+        headers_map.insert(key.to_string(), header_value);
+    }
+
     let body = match response.text().await {
         Ok(body) => body,
         Err(e) => return e.to_string(),
@@ -35,6 +47,8 @@ async fn send_request(url: String) -> String {
         status,
         body,
         size,
+        headers: headers_map
+
     };
     return serde_json::to_string(&my_response).expect("Error");
 }
