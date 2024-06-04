@@ -1,6 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod file_service;
+
 use std::collections::HashMap;
 
 use reqwest;
@@ -9,6 +11,7 @@ use serde::{Deserialize, Serialize};
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![send_request])
+        .invoke_handler(tauri::generate_handler![get_file_names])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -49,4 +52,9 @@ async fn send_request(url: String) -> String {
         headers: headers_map,
     };
     return serde_json::to_string(&my_response).expect("Error");
+}
+
+#[tauri::command]
+fn get_file_names() -> file_service::Requests {
+    return file_service::get_files();
 }

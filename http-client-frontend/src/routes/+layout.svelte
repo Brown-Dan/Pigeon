@@ -3,13 +3,14 @@
 	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 	import { AppBar, AppShell, storePopup, TreeView, TreeViewItem } from '@skeletonlabs/skeleton';
 	import { initializeStores, Toast } from '@skeletonlabs/skeleton';
+	import { invoke } from '@tauri-apps/api/tauri';
 	initializeStores();
 	function open_request_tab(request_name: String) {
 		window.dispatchEvent(new CustomEvent("requestBarClick", {detail: request_name}));
 	}
+	 let files = invoke('get_file_names', {}).then();
 
-
-	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
+		storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 </script>
 <Toast />
 <AppShell>
