@@ -1,1 +1,1 @@
-API Client build with Tauri & Sveltekit
+[WIP] API Client build with Tauri & Sveltekit
