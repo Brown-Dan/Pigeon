@@ -30,12 +30,15 @@
 		const btn_content = document.getElementById('btn_content');
 		btn_content?.setAttribute('hidden', 'hidden');
 		let queryParams = '?';
-		if (numOfParams > 1) {
-			for (let i = 0; i <= numOfParams; i++) {
-				console.log(i);
+		if (numOfParams >= 1) {
+			for (let i = 0; i < numOfParams; i++) {
 				let param_name = <HTMLInputElement>document.getElementById('param_name_' + i).value;
 				let param_value = <HTMLInputElement>document.getElementById('param_value_' + i).value;
-				queryParams = queryParams + param_name + '=' + param_value + '&';
+				let param_checkbox = <HTMLInputElement>document.getElementById('param_checkbox_' + i);
+				console.log(param_checkbox)
+				if (param_checkbox.checked) {
+					queryParams = queryParams + param_name + '=' + param_value + '&';
+				}
 			}
 		}
 		const url: string = (<HTMLInputElement>document.getElementById('url')).value;
@@ -62,9 +65,9 @@
 		numOfParams = 0;
 	}
 
-	function disable_param(num: number) {
-		let param_name = <HTMLInputElement>document.getElementById('param_name_' + num);
-		let param_value = <HTMLInputElement>document.getElementById('param_value_' + num);
+	function disable(num: number, prefix: string) {
+		let param_name = <HTMLInputElement>document.getElementById(prefix + '_name_' + num);
+		let param_value = <HTMLInputElement>document.getElementById(prefix + '_value_' + num);
 		if (param_name.getAttribute('disabled') === 'disabled') {
 			param_name.removeAttribute('disabled');
 		} else {
@@ -92,17 +95,18 @@
 		</div>
 		<TabGroup>
 			<Tab bind:group={requestTabSet} name="tab1" value={0}>
-				<svelte:fragment slot="lead">Body</svelte:fragment>
+				Body
 			</Tab>
 			<Tab bind:group={requestTabSet} name="tab2" value={1}>Parameters</Tab>
 			<Tab bind:group={requestTabSet} name="tab3" value={2}>Headers</Tab>
 			<svelte:fragment slot="panel">
-				{#if requestTabSet === 0}
+				<div hidden={requestTabSet !== 0} id="body">
 					<label class="label">
 						<textarea class="textarea" rows="4"
 											placeholder="Lorem ipsum dolor sit amet consectetur adipisicing elit." />
 					</label>
-				{:else if requestTabSet === 1}
+				</div>
+				<div hidden={requestTabSet !== 1} id="queryParams">
 					<div class="btn-group variant-filled mb-5">
 						<button type="button" class=" btn-sm" on:click={increaseParamCount}>Add</button>
 						<button type="button" class=" btn-sm" on:click={deleteParams}>Delete All</button>
@@ -111,14 +115,35 @@
 						<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-3">
 							<input type="text" placeholder="name" id={"param_name_" + i} disabled="" />
 							<input type="text" placeholder="value" id={"param_value_" + i} disabled="" />
-							<div class="input-group-shim"><input on:change={() => disable_param(i)} id="{'param_checkbox' + i}"
+							<div class="input-group-shim"><input on:change={() => disable(i, 'param')} id="{'param_checkbox_' + i}"
 																									 class="checkbox" type="checkbox"
 																									 checked /></div>
 						</div>
 					{/each}
-				{:else if requestTabSet === 2}
-					(tab panel 3 contents)
-				{/if}
+				</div>
+				<div hidden={requestTabSet !== 2} id="headers">
+					<div class="btn-group variant-filled mb-5">
+						<button type="button" class=" btn-sm" on:click={increaseParamCount}>Add</button>
+						<button type="button" class=" btn-sm" on:click={deleteParams}>Delete All</button>
+					</div>
+					<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-3">
+						<input type="text" placeholder="name" disabled value="Accept" />
+						<input type="text" placeholder="value" id="accept" value="*/*" />
+					</div>
+					<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-3">
+						<input type="text" placeholder="name" disabled value="Host" />
+						<input type="text" placeholder="value" id="host" disabled value="<calculated at runtime>" />
+					</div>
+					{#each { length: numOfParams } as _, i}
+						<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-3">
+							<input type="text" placeholder="name" id={"header_name_" + i} disabled="" />
+							<input type="text" placeholder="value" id={"header_value_" + i} disabled="" />
+							<div class="input-group-shim"><input on:change={() => disable(i, 'header')} id="{'header_checkbox_' + i}"
+																									 class="checkbox" type="checkbox"
+																									 checked /></div>
+						</div>
+					{/each}
+				</div>
 			</svelte:fragment>
 		</TabGroup>
 		<button id="send_request_btn" on:click={send_request} type="button" class="btn btn-xl variant-filled mt-5 text">
