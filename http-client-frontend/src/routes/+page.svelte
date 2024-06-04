@@ -1,13 +1,19 @@
 <script lang="ts">
 	import { invoke } from '@tauri-apps/api/tauri';
-	import { clipboard, CodeBlock, storeHighlightJs, Tab, TabGroup } from '@skeletonlabs/skeleton';
+	import { clipboard, CodeBlock, storeHighlightJs, Tab, TabGroup, type ToastSettings } from '@skeletonlabs/skeleton';
 	import hljs from 'highlight.js/lib/core';
 	import json from 'highlight.js/lib/languages/json';
 	import { friendlyHttpStatus } from '$lib/StatusUtils';
-
-
+	import { getToastStore } from '@skeletonlabs/skeleton';
+	const toastStore = getToastStore();
 	hljs.registerLanguage('json', json);
 	storeHighlightJs.set(hljs);
+
+	const t: ToastSettings = {
+		message: '👋Sent Request',
+		timeout: 3000,
+		background: 'variant-filled-success',
+	};
 
 	let response: JSON;
 	let headers: Map<any, any>;
@@ -25,12 +31,14 @@
 		let queryParams = "?"
 		if (numOfParams > 1) {
 		for (let i = 0; i < numOfParams; i++) {
+			console.log(i)
 			let param_name = <HTMLInputElement>document.getElementById('param_name_' + i).value;
 			let param_value = <HTMLInputElement>document.getElementById('param_value_' + i).value;
 			queryParams = queryParams + param_name  + "=" + param_value + "&"
 		}}
 		const url: string = (<HTMLInputElement>document.getElementById('url')).value;
 		let start_time = window.performance.now();
+		toastStore.trigger(t);
 		invoke('send_request', { url: url + queryParams }).then(value => {
 				let end_time = window.performance.now();
 				time = end_time - start_time;
@@ -68,7 +76,7 @@
 	}
 
 </script>
-<div class="grid grid-cols-2 min-h-full m-5">
+<div class="grid grid-cols-2 min-h-full m-5 overflow-auto">
 	<div class="mt-16">
 		<div class="input-group input-group-divider grid-cols-[1fr_auto] mb-5">
 			<input type="text" placeholder="www.example.com" id="url" />
@@ -86,7 +94,6 @@
 			</Tab>
 			<Tab bind:group={requestTabSet} name="tab2" value={1}>Parameters</Tab>
 			<Tab bind:group={requestTabSet} name="tab3" value={2}>Headers</Tab>
-			<!-- Tab Panels --->
 			<svelte:fragment slot="panel">
 				{#if requestTabSet === 0}
 					<label class="label">
@@ -138,6 +145,12 @@
 					<div class="border-white min-w-screen min-h-screen text-black rounded-2xl text-wrap p-5 overflow-scroll">
 						{#if response}
 							<CodeBlock lineNumbers=True language="json" code={response.body}></CodeBlock>
+							{:else}
+							<div class="card p-4 text-white text-xl">
+								<kbd class="kbd">⌘ + Enter</kbd> to send a request.
+								<br>
+								<kbd class="kbd">⌘ + E</kbd> to edit environment.
+							</div>
 						{/if}
 					</div>
 				{:else if responseTabSet === 1}

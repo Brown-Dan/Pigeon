@@ -23,7 +23,7 @@ struct Response {
 
 #[tauri::command]
 async fn send_request(url: String) -> String {
-    let response = reqwest::get(url).await;
+    let response = reqwest::Client::new().get(url).send().await;
     let response = match response {
         Ok(response) => response,
         Err(e) => return e.to_string(),
