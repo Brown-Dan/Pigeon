@@ -4,11 +4,13 @@
 	import { AppBar, AppShell, storePopup, TreeView, TreeViewItem } from '@skeletonlabs/skeleton';
 	import { initializeStores, Toast } from '@skeletonlabs/skeleton';
 	initializeStores();
+	function open_request_tab(request_name: String) {
+		window.dispatchEvent(new CustomEvent("requestBarClick", {detail: request_name}));
+	}
 
 
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 </script>
-
 <Toast />
 <AppShell>
 	<svelte:fragment slot="header">
@@ -45,14 +47,14 @@
 		</AppBar>
 	</svelte:fragment>
 	<svelte:fragment slot="sidebarLeft">
-		<TreeView class="m-5 hidden lg:block min-w-72 mt-16">
+		<TreeView class="m-5 hidden lg:block min-w-72">
 			<TreeViewItem>
 				Customer Data Service
 				<svelte:fragment slot="children">
 					<TreeViewItem>
 						Customer
 						<svelte:fragment slot="children">
-							<TreeViewItem>
+							<TreeViewItem on:click={() => open_request_tab('Get Customer By Id')}>
 								Get Customer By Id
 							</TreeViewItem>
 							<TreeViewItem>
