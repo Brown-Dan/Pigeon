@@ -55,12 +55,11 @@
 		if (numOfParams >= 1) {
 			for (let i = 0; i < numOfParams; i++) {
 				let header_name: string = (<HTMLInputElement>document.getElementById('header_name_' + i)).value;
-				if (header_name.isEmpty) {
+				if (header_name.length === 0) {
 					continue;
 				}
 				let header_value: string = (<HTMLInputElement>document.getElementById('header_value_' + i)).value;
 				let header_checkbox = <HTMLInputElement>document.getElementById('header_checkbox_' + i);
-				console.log(header_checkbox);
 				if (header_checkbox.checked) {
 					headers.set(header_name, header_value);
 				}
@@ -75,12 +74,11 @@
 			queryParams = queryParams + '?'
 			for (let i = 0; i < numOfParams; i++) {
 				let param_name: string = (<HTMLInputElement>document.getElementById('param_name_' + i)).value;
-				if (param_name.isEmpty) {
+				if (param_name.length === 0) {
 					continue;
 				}
 				let param_value: string = (<HTMLInputElement>document.getElementById('param_value_' + i)).value;
 				let param_checkbox = <HTMLInputElement>document.getElementById('param_checkbox_' + i);
-				console.log(param_checkbox);
 				if (param_checkbox.checked) {
 					queryParams = queryParams + param_name + '=' + param_value + '&';
 				}
