@@ -59,8 +59,8 @@
 		let accept_value: string = (<HTMLInputElement>document.getElementById('accept')).value;
 		headers.set('Accept', accept_value);
 
-		if (numOfParams >= 1) {
-			for (let i = 0; i < numOfParams; i++) {
+		if (numOfHeaders >= 1) {
+			for (let i = 0; i < numOfHeaders; i++) {
 				let header_name: string = (<HTMLInputElement>document.getElementById('header_name_' + i)).value;
 				if (header_name.length === 0) {
 					continue;
