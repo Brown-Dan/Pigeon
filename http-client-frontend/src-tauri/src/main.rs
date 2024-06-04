@@ -1,12 +1,14 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod file_service;
-
 use std::collections::HashMap;
+use std::str::FromStr;
 
 use reqwest;
+use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use serde::{Deserialize, Serialize};
+
+mod file_service;
 
 fn main() {
     tauri::Builder::default()
@@ -23,9 +25,17 @@ struct Response {
     headers: HashMap<String, String>,
 }
 
+fn hashmap_to_headers(hashmap: HashMap<String, String>) -> HeaderMap {
+    let mut header_map = HeaderMap::new();
+    for (k, v) in hashmap {
+        header_map.append(HeaderName::from_bytes(k.as_bytes()).unwrap(), HeaderValue::from_str(&*v).unwrap());
+    }
+    return header_map;
+}
+
 #[tauri::command]
-async fn send_request(url: String) -> String {
-    let response = reqwest::Client::new().get(url).send().await;
+async fn send_request(url: String, headers: HashMap<String, String>) -> String {
+    let response = reqwest::Client::new().get(url).headers(hashmap_to_headers(headers)).send().await;
     let response = match response {
         Ok(response) => response,
         Err(e) => return e.to_string(),

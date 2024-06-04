@@ -23,28 +23,17 @@
 	let time: number;
 	let requestTabSet: number = 0;
 	let numOfParams: number = 1;
+	let numOfHeaders: number = 1;
 
 	function send_request() {
 		const btn_spinner = document.getElementById('btn_spinner');
 		btn_spinner.removeAttribute('hidden');
 		const btn_content = document.getElementById('btn_content');
 		btn_content?.setAttribute('hidden', 'hidden');
-		let queryParams = '?';
-		if (numOfParams >= 1) {
-			for (let i = 0; i < numOfParams; i++) {
-				let param_name = <HTMLInputElement>document.getElementById('param_name_' + i).value;
-				let param_value = <HTMLInputElement>document.getElementById('param_value_' + i).value;
-				let param_checkbox = <HTMLInputElement>document.getElementById('param_checkbox_' + i);
-				console.log(param_checkbox)
-				if (param_checkbox.checked) {
-					queryParams = queryParams + param_name + '=' + param_value + '&';
-				}
-			}
-		}
 		const url: string = (<HTMLInputElement>document.getElementById('url')).value;
 		let start_time = window.performance.now();
 		toastStore.trigger(t);
-		invoke('send_request', { url: url + queryParams }).then(value => {
+		invoke('send_request', { url: url + gatherParams(), headers: gatherHeaders() }).then(value => {
 				let end_time = window.performance.now();
 				time = end_time - start_time;
 				btn_content?.removeAttribute('hidden');
@@ -57,12 +46,65 @@
 		);
 	}
 
+	function gatherHeaders(): Map<String, String> {
+		let headers: Map<String, String> = new Map<String, String>();
+		// let host_value = <HTMLInputElement>document.getElementById('host').value;
+		let accept_value: string = (<HTMLInputElement>document.getElementById('accept')).value;
+		headers.set('Accept', accept_value);
+
+		if (numOfParams >= 1) {
+			for (let i = 0; i < numOfParams; i++) {
+				let header_name: string = (<HTMLInputElement>document.getElementById('header_name_' + i)).value;
+				if (header_name.isEmpty) {
+					continue;
+				}
+				let header_value: string = (<HTMLInputElement>document.getElementById('header_value_' + i)).value;
+				let header_checkbox = <HTMLInputElement>document.getElementById('header_checkbox_' + i);
+				console.log(header_checkbox);
+				if (header_checkbox.checked) {
+					headers.set(header_name, header_value);
+				}
+			}
+		}
+		return headers;
+	}
+
+	function gatherParams(): string {
+		let queryParams = '';
+		if (numOfParams >= 1) {
+			queryParams = queryParams + '?'
+			for (let i = 0; i < numOfParams; i++) {
+				let param_name: string = (<HTMLInputElement>document.getElementById('param_name_' + i)).value;
+				if (param_name.isEmpty) {
+					continue;
+				}
+				let param_value: string = (<HTMLInputElement>document.getElementById('param_value_' + i)).value;
+				let param_checkbox = <HTMLInputElement>document.getElementById('param_checkbox_' + i);
+				console.log(param_checkbox);
+				if (param_checkbox.checked) {
+					queryParams = queryParams + param_name + '=' + param_value + '&';
+				}
+			}
+			queryParams = queryParams.substring(0, queryParams.length - 1);
+		}
+		console.log(queryParams)
+		return queryParams;
+	}
+
 	function increaseParamCount() {
 		numOfParams += 1;
 	}
 
 	function deleteParams() {
 		numOfParams = 0;
+	}
+
+	function increaseHeaderCount() {
+		numOfHeaders += 1;
+	}
+
+	function deleteHeader() {
+		numOfHeaders = 0;
 	}
 
 	function disable(num: number, prefix: string) {
@@ -123,8 +165,8 @@
 				</div>
 				<div hidden={requestTabSet !== 2} id="headers">
 					<div class="btn-group variant-filled mb-5">
-						<button type="button" class=" btn-sm" on:click={increaseParamCount}>Add</button>
-						<button type="button" class=" btn-sm" on:click={deleteParams}>Delete All</button>
+						<button type="button" class=" btn-sm" on:click={increaseHeaderCount}>Add</button>
+						<button type="button" class=" btn-sm" on:click={deleteHeader}>Delete All</button>
 					</div>
 					<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-3">
 						<input type="text" placeholder="name" disabled value="Accept" />
