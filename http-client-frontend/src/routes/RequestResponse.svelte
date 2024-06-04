@@ -180,7 +180,7 @@
 						<input type="text" placeholder="name" disabled value="Host" />
 						<input type="text" placeholder="value" id="host" disabled value="<calculated at runtime>" />
 					</div>
-					{#each { length: numOfParams } as _, i}
+					{#each { length: numOfHeaders } as _, i}
 						<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-3">
 							<input type="text" placeholder="name" id={"header_name_" + i} disabled="" />
 							<input type="text" placeholder="value" id={"header_value_" + i} disabled="" />
