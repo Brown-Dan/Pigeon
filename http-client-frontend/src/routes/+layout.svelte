@@ -45,28 +45,28 @@
 		</AppBar>
 	</svelte:fragment>
 	<svelte:fragment slot="sidebarLeft">
-		<TreeView class="m-5 hidden md:block">
+		<TreeView class="m-5 hidden lg:block min-w-72 mt-16">
 			<TreeViewItem>
-				(item 1)
+				Customer Data Service
 				<svelte:fragment slot="children">
 					<TreeViewItem>
-						(Child 1)
+						Customer
 						<svelte:fragment slot="children">
 							<TreeViewItem>
-								(Child of Child 1)
+								Get Customer By Id
 							</TreeViewItem>
 							<TreeViewItem>
-								(Child of Child 2)
+								Find Customer
 							</TreeViewItem>
 						</svelte:fragment>
 					</TreeViewItem>
 					<TreeViewItem>
-						(Child 2)
+						Get Customer History
 					</TreeViewItem>
 				</svelte:fragment>
 			</TreeViewItem>
 			<TreeViewItem>
-				(item 2)
+				Add Advertiser S1
 			</TreeViewItem>
 		</TreeView>
 	</svelte:fragment>

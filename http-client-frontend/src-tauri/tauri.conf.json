@@ -23,6 +23,7 @@
       },
       "externalBin": [],
       "icon": [
+        "icons/pigeon.png",
         "icons/32x32.png",
         "icons/128x128.png",
         "icons/128x128@2x.png",
@@ -58,8 +59,8 @@
         "fullscreen": false,
         "height": 1200,
         "resizable": true,
-        "title": "http-client",
-        "width": 1200
+        "title": "Pigeon [BETA]",
+        "width": 1600
       }
     ]
   }
