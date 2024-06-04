@@ -30,7 +30,7 @@
 
 </script>
 <svelte:window on:requestBarClick={(e) => handleNewTabEvent(e)} />
-<TabGroup on:message={(event) => handleNewTabEvent(event)}>
+<TabGroup class="mt-5" on:message={(event) => handleNewTabEvent(event)}>
 	{#each request_tabs as request, i}
 		<Tab bind:group={tabSet} name="tab{i}" value={i}>{request.name}
 			<button on:click={() => close_tab(i)} type="button"

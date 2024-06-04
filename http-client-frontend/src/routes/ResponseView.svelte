@@ -1,6 +1,12 @@
 <script lang="ts">
 	import { friendlyHttpStatus } from '$lib/StatusUtils.js';
-	import { clipboard, CodeBlock, Tab, TabGroup } from '@skeletonlabs/skeleton';
+	import { clipboard, CodeBlock, storeHighlightJs, Tab, TabGroup } from '@skeletonlabs/skeleton';
+	import hljs from 'highlight.js/lib/core';
+	import json from 'highlight.js/lib/languages/json';
+	import 'highlight.js/styles/srcery.css';
+
+	hljs.registerLanguage('json', json);
+	storeHighlightJs.set(hljs);
 
 	let responseTabSet: number = 0;
 	const exampleData: string = 'https://httpbin.org/get';
@@ -31,7 +37,7 @@
 					{#if responseTabSet === 0}
 						<div class="border-white min-w-screen min-h-screen text-black rounded-2xl text-wrap p-5 overflow-scroll">
 							{#if response}
-								<CodeBlock lineNumbers=True language="json" code={response.body}></CodeBlock>
+								<CodeBlock lineNumbers language="json" code={response.body}></CodeBlock>
 							{:else}
 								<div class="card p-4 text-white text-xl">
 									<kbd class="kbd">⌘ + Enter</kbd> to send a request.

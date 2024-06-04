@@ -1,21 +1,24 @@
 <script lang="ts">
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { getToastStore, storeHighlightJs, Tab, TabGroup, type ToastSettings } from '@skeletonlabs/skeleton';
-	import hljs from 'highlight.js/lib/core';
-	import json from 'highlight.js/lib/languages/json';
 	import ResponseView from './ResponseView.svelte';
 	import type { Request } from '$lib/Request';
 
 	export let request: Request | undefined;
 
 	const toastStore = getToastStore();
-	hljs.registerLanguage('json', json);
-	storeHighlightJs.set(hljs);
 
-	const t: ToastSettings = {
-		message: '📤 Sent Request',
+
+	const request_success: ToastSettings = {
+		message: '📤 Sent request',
 		timeout: 3000,
 		background: 'variant-filled-success'
+	};
+
+	const request_failure: ToastSettings = {
+		message: '😭 Failed to send request',
+		timeout: 3000,
+		background: 'variant-filled-error'
 	};
 
 	let response: JSON;
@@ -32,16 +35,20 @@
 		btn_content?.setAttribute('hidden', 'hidden');
 		const url: string = (<HTMLInputElement>document.getElementById('url')).value;
 		let start_time = window.performance.now();
-		toastStore.trigger(t);
 		invoke('send_request', { url: url + gatherParams(), headers: gatherHeaders() }).then(value => {
-				let end_time = window.performance.now();
-				time = end_time - start_time;
-				btn_content?.removeAttribute('hidden');
-				btn_spinner?.setAttribute('hidden', 'hidden');
-				if (typeof value === 'string') {
-					response = JSON.parse(value);
+				try {
+					let end_time = window.performance.now();
+					time = end_time - start_time;
+					btn_content?.removeAttribute('hidden');
+					btn_spinner?.setAttribute('hidden', 'hidden');
+					if (typeof value === 'string') {
+						response = JSON.parse(value);
+					}
+					headers = new Map(Object.entries(response.headers));
+					toastStore.trigger(request_success);
+				} catch (e) {
+					toastStore.trigger(request_failure);
 				}
-				headers = new Map(Object.entries(response.headers));
 			}
 		);
 	}
@@ -55,7 +62,11 @@
 		if (numOfParams >= 1) {
 			for (let i = 0; i < numOfParams; i++) {
 				let header_name: string = (<HTMLInputElement>document.getElementById('header_name_' + i)).value;
+<<<<<<< HEAD
 				if (header_name.length === 0) {
+=======
+				if (header_name.length == 0) {
+>>>>>>> db4599f (fixed highlighting, added error response, fixed formatting)
 					continue;
 				}
 				let header_value: string = (<HTMLInputElement>document.getElementById('header_value_' + i)).value;
@@ -71,10 +82,14 @@
 	function gatherParams(): string {
 		let queryParams = '';
 		if (numOfParams >= 1) {
-			queryParams = queryParams + '?'
+			queryParams = queryParams + '?';
 			for (let i = 0; i < numOfParams; i++) {
 				let param_name: string = (<HTMLInputElement>document.getElementById('param_name_' + i)).value;
+<<<<<<< HEAD
 				if (param_name.length === 0) {
+=======
+				if (param_name.length == 0) {
+>>>>>>> db4599f (fixed highlighting, added error response, fixed formatting)
 					continue;
 				}
 				let param_value: string = (<HTMLInputElement>document.getElementById('param_value_' + i)).value;
@@ -85,7 +100,7 @@
 			}
 			queryParams = queryParams.substring(0, queryParams.length - 1);
 		}
-		console.log(queryParams)
+		console.log(queryParams);
 		return queryParams;
 	}
 
