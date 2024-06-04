@@ -62,11 +62,7 @@
 		if (numOfParams >= 1) {
 			for (let i = 0; i < numOfParams; i++) {
 				let header_name: string = (<HTMLInputElement>document.getElementById('header_name_' + i)).value;
-<<<<<<< HEAD
 				if (header_name.length === 0) {
-=======
-				if (header_name.length == 0) {
->>>>>>> db4599f (fixed highlighting, added error response, fixed formatting)
 					continue;
 				}
 				let header_value: string = (<HTMLInputElement>document.getElementById('header_value_' + i)).value;
@@ -82,14 +78,10 @@
 	function gatherParams(): string {
 		let queryParams = '';
 		if (numOfParams >= 1) {
-			queryParams = queryParams + '?';
+			queryParams = queryParams + '?'
 			for (let i = 0; i < numOfParams; i++) {
 				let param_name: string = (<HTMLInputElement>document.getElementById('param_name_' + i)).value;
-<<<<<<< HEAD
 				if (param_name.length === 0) {
-=======
-				if (param_name.length == 0) {
->>>>>>> db4599f (fixed highlighting, added error response, fixed formatting)
 					continue;
 				}
 				let param_value: string = (<HTMLInputElement>document.getElementById('param_value_' + i)).value;
@@ -100,7 +92,6 @@
 			}
 			queryParams = queryParams.substring(0, queryParams.length - 1);
 		}
-		console.log(queryParams);
 		return queryParams;
 	}
 
