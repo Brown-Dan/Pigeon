@@ -1,27 +1,38 @@
 <script lang="ts">
 	import RequestResponse from './RequestResponse.svelte';
 	import { Tab, TabGroup } from '@skeletonlabs/skeleton';
+	import type { Request, Requests } from '$lib/Request';
+	import { invoke } from '@tauri-apps/api/tauri';
 
 	let tabSet: number = 0;
-
-	let requests: string[] = ['Get Customer', 'Find Customer', 'Fetch Customer'];
+	let request_tabs: Request[] = [];
 
 	function handleNewTabEvent(event: Event) {
-		requests.push(event.detail)
-		requests = requests
+		let idx: number = request_tabs.indexOf(event.detail, 0);
+		if (idx !== -1) {
+			tabSet = idx;
+			return;
+		}
+		request_tabs.push(event.detail);
+		request_tabs = request_tabs;
+		idx = request_tabs.indexOf(event.detail, 0);
+		tabSet = idx;
 	}
 
 	function close_tab(index: number) {
-		requests.splice(index, 1);
-		requests = requests.filter(Boolean);
-		console.log(requests);
+		request_tabs.splice(index, 1);
+		request_tabs = request_tabs.filter(Boolean);
+		tabSet -= 1;
 	}
+
+	let requests: Promise<Requests> = invoke('get_collections', {}).then((value) => <Requests>value);
+
 
 </script>
 <svelte:window on:requestBarClick={(e) => handleNewTabEvent(e)} />
 <TabGroup on:message={(event) => handleNewTabEvent(event)}>
-	{#each requests as request, i}
-		<Tab bind:group={tabSet} name="tab1" value={i}>{request}
+	{#each request_tabs as request, i}
+		<Tab bind:group={tabSet} name="tab{i}" value={i}>{request.name}
 			<button on:click={() => close_tab(i)} type="button"
 							class="bg-white rounded-md p-2 inline-flex items-center justify-center text-black hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
 				<svg class="h-2 w-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -33,7 +44,7 @@
 	{/each}
 
 	<svelte:fragment slot="panel">
-		<RequestResponse />
+			<RequestResponse request={request_tabs.at(tabSet)} />
 	</svelte:fragment>
 </TabGroup>
 

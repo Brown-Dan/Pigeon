@@ -4,6 +4,9 @@
 	import hljs from 'highlight.js/lib/core';
 	import json from 'highlight.js/lib/languages/json';
 	import ResponseView from './ResponseView.svelte';
+	import type { Request } from '$lib/Request';
+
+	export let request: Request | undefined;
 
 	const toastStore = getToastStore();
 	hljs.registerLanguage('json', json);
@@ -27,7 +30,7 @@
 		const btn_content = document.getElementById('btn_content');
 		btn_content?.setAttribute('hidden', 'hidden');
 		let queryParams = '?';
-		if (numOfParams >= 1) {
+		if (numOfParams > 1) {
 			for (let i = 0; i <= numOfParams; i++) {
 				console.log(i);
 				let param_name = <HTMLInputElement>document.getElementById('param_name_' + i).value;
@@ -78,7 +81,7 @@
 <div class="grid grid-cols-2 min-h-full m-5 overflow-auto">
 	<div class="mt-16">
 		<div class="input-group input-group-divider grid-cols-[1fr_auto] mb-5">
-			<input type="text" placeholder="www.example.com" id="url" />
+			<input type="text" placeholder="https://example.com/" id="url" value={request !== undefined ? request.url : ""} />
 			<select id="method">
 				<option value="1">GET</option>
 				<option value="2">PUT</option>
@@ -132,7 +135,7 @@
 			<b id="btn_content" hidden="">Send</b>
 		</button>
 	</div>
-	<ResponseView {response} {time} {headers}/>
+	<ResponseView {response} {time} {headers} />
 </div>
 
 

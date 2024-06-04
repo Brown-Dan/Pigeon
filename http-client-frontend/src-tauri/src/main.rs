@@ -10,8 +10,7 @@ use serde::{Deserialize, Serialize};
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![send_request])
-        .invoke_handler(tauri::generate_handler![get_file_names])
+        .invoke_handler(tauri::generate_handler![get_collections, send_request])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -55,6 +54,6 @@ async fn send_request(url: String) -> String {
 }
 
 #[tauri::command]
-fn get_file_names() -> file_service::Requests {
+fn get_collections() -> file_service::Requests {
     return file_service::get_files();
 }

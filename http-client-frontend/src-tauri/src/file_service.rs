@@ -15,7 +15,9 @@ struct Collection {
 
 #[derive(Serialize, Deserialize)]
 struct Request {
+    name: String,
     url: String,
+    method: String
 }
 
 #[derive(Serialize, Deserialize)]
