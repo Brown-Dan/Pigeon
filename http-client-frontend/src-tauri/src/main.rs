@@ -15,7 +15,7 @@ mod file_service;
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_collections, send_request, add_collection, get_history])
+        .invoke_handler(tauri::generate_handler![get_collections, send_request, add_collection, get_history, delete_collection])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -26,7 +26,7 @@ pub struct Response {
     size: String,
     body: String,
     headers: HashMap<String, String>,
-    elapsed: Duration
+    elapsed: Duration,
 }
 
 fn hashmap_to_headers(hashmap: HashMap<String, String>) -> HeaderMap {
@@ -65,12 +65,12 @@ async fn send_request(url: String, headers: HashMap<String, String>) -> String {
         body,
         size,
         headers: headers_map,
-        elapsed
+        elapsed,
     };
-    let historic_request: Request  = Request {
+    let historic_request: Request = Request {
         name: String::from("_"),
         url,
-        method: "GET".parse().unwrap()
+        method: "GET".parse().unwrap(),
     };
     file_service::add_history(historic_request, &my_response);
 
@@ -90,4 +90,9 @@ fn add_collection(config: AddCollectionRequest) -> bool {
 #[tauri::command]
 fn get_history() -> History {
     return file_service::get_history();
+}
+
+#[tauri::command]
+fn delete_collection(collection_name: String) {
+    file_service::delete_collection(collection_name);
 }

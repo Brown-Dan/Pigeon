@@ -61,9 +61,9 @@ pub fn get_history() -> History {
         history.requests.reverse();
         return history;
     }
-    return History{
+    return History {
         requests: Vec::new()
-    }
+    };
 }
 
 fn map_request_to_historic_request(request: Request, response: &Response) -> HistoricRequest {
@@ -98,6 +98,12 @@ pub fn add_history(request: Request, response: &Response) {
         history.requests.push(historic_request);
         fs::write(&path, serde_json::to_string(&history).unwrap()).expect("Failed to write updated history");
     }
+}
+
+pub fn delete_collection(collection_name: String) {
+    let mut path: PathBuf = get_pigeon_path();
+    path.push(&collection_name);
+    fs::remove_dir_all(path).unwrap()
 }
 
 pub fn add_collection(add_collection_request: AddCollectionRequest) -> bool {

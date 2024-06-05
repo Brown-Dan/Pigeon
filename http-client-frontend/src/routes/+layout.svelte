@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.postcss';
 	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
+	import type { PopupSettings } from '@skeletonlabs/skeleton';
 	import {
 		AppBar,
 		AppShell,
@@ -9,6 +10,7 @@
 		Modal,
 		type ModalComponent,
 		type ModalSettings,
+		popup,
 		storePopup,
 		Toast,
 		TreeView,
@@ -20,6 +22,8 @@
 	import AddCollectionModal from './AddCollectionModal.svelte';
 	import { requests } from '$lib/RequestsStore';
 	import { onMount } from 'svelte';
+
+	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
 	initializeStores();
 
@@ -37,6 +41,22 @@
 		type: 'component',
 		component: 'addCollectionModal'
 	};
+
+	const confirmDeleteModal: ModalSettings = {
+		type: 'confirm',
+		title: 'Please Confirm',
+		body: 'Are you sure you wish to proceed with deleting collection?',
+		response: (r: boolean) => {
+			if (r === true) {
+				invoke('delete_collection', { collectionName: selected_collection });
+				requests.update((value) => {
+					value.collections = value.collections.filter(collection => collection.name !== selected_collection);
+					return value;
+				});
+			}
+		}
+	};
+
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 
 	function open_request_tab(request: Request) {
@@ -57,7 +77,32 @@
 		requests_result = value;
 	});
 
+	const collectionSettingsPopup: PopupSettings = {
+		event: 'click',
+		target: 'collectionSettingsPopup',
+		placement: 'right',
+		closeQuery: 'button'
+	};
+
+	let selected_collection: string;
+
+	async function delete_collection() {
+		collectionSettingsPopup.closeQuery;
+		modalStore.trigger(confirmDeleteModal);
+	}
+
 </script>
+
+<div class="card w-48 shadow-xl py-2 text-center" data-popup="collectionSettingsPopup">
+
+	<div class="btn-group-vertical min-w-full">
+		<button>Add Request</button>
+		<button>Environments</button>
+		<button on:click={delete_collection}>Delete</button>
+	</div>
+	<div class="arrow bg-surface-100-800-token" />
+</div>
+
 <Toast />
 <Modal components={modalRegistry} />
 <AppShell>
@@ -134,9 +179,16 @@
 				{#each requests_result.collections as collection}
 					<TreeViewItem>
 						{collection.name}
+						<button on:click={() => selected_collection = collection.name} use:popup={collectionSettingsPopup}>
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+									 stroke="currentColor" class="size-6 inline-block mb-0.5">
+								<path stroke-linecap="round" stroke-linejoin="round"
+											d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+							</svg>
+						</button>
 						<svelte:fragment slot="children">
 							{#each collection.requests as request}
-								<TreeViewItem class="text-center" on:click={() => open_request_tab(request)}>
+								<TreeViewItem on:click={() => open_request_tab(request)}>
 									{request.name}<span class="ml-4 badge variant-filled-success">{request.method}</span>
 								</TreeViewItem>
 							{/each}
