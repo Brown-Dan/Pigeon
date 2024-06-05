@@ -7,6 +7,12 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
+pub struct AddCollectionRequest {
+    name: String,
+    description: String,
+}
+
+#[derive(Serialize, Deserialize)]
 struct Collection {
     name: String,
     description: String,
@@ -17,7 +23,7 @@ struct Collection {
 struct Request {
     name: String,
     url: String,
-    method: String
+    method: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -26,16 +32,28 @@ pub struct Requests {
     orphaned_requests: Vec<Request>,
 }
 
+pub fn add_collection(add_collection_request: AddCollectionRequest) -> bool {
+    let mut path: PathBuf = get_pigeon_path();
+    path.push(&add_collection_request.name);
+
+    let create_dir_result = fs::create_dir(&path);
+    if create_dir_result.is_err() {
+        return false;
+    }
+    let contents: String = serde_json::to_string(&add_collection_request).unwrap();
+    path.push("config.pigeon");
+    let write_result = fs::write(&path, contents);
+    if write_result.is_err() {
+        return false;
+    }
+    return true;
+}
+
 pub fn get_files() -> Requests {
     let mut orphaned_requests: Vec<Request> = Vec::new();
     let mut collections: Vec<Collection> = Vec::new();
 
-    let desktop_path: String = format!("{}/Desktop", dirs::home_dir().unwrap().to_string_lossy());
-    let mut pigeon_folder = PathBuf::new();
-    pigeon_folder.push(desktop_path);
-    pigeon_folder.push("Pigeon");
-
-    let res = fs::read_dir(pigeon_folder).unwrap();
+    let res = fs::read_dir(get_pigeon_path()).unwrap();
     for result in res {
         let entry: DirEntry = result.unwrap();
         if entry.file_type().unwrap().is_file() {
@@ -90,8 +108,16 @@ fn deserialize_collection(collection_config: String, requests: Vec<String>) -> C
     let config: HashMap<String, String> = serde_json::from_str(&*collection_config).unwrap();
 
     return Collection {
-        name: config.get("collectionName").unwrap().to_string(),
+        name: config.get("name").unwrap().to_string(),
         description: config.get("description").unwrap().to_string(),
         requests: mapped_requests,
     };
+}
+
+fn get_pigeon_path() -> PathBuf {
+    let desktop_path: String = format!("{}/Desktop", dirs::home_dir().unwrap().to_string_lossy());
+    let mut path_buf = PathBuf::new();
+    path_buf.push(desktop_path);
+    path_buf.push("Pigeon");
+    return path_buf;
 }

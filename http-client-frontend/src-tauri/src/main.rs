@@ -8,11 +8,13 @@ use reqwest;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use serde::{Deserialize, Serialize};
 
+use crate::file_service::AddCollectionRequest;
+
 mod file_service;
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_collections, send_request])
+        .invoke_handler(tauri::generate_handler![get_collections, send_request, add_collection])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -66,4 +68,9 @@ async fn send_request(url: String, headers: HashMap<String, String>) -> String {
 #[tauri::command]
 fn get_collections() -> file_service::Requests {
     return file_service::get_files();
+}
+
+#[tauri::command]
+fn add_collection(config: AddCollectionRequest) -> bool {
+    return file_service::add_collection(config);
 }

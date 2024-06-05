@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { invoke } from '@tauri-apps/api/tauri';
-	import { getToastStore, storeHighlightJs, Tab, TabGroup, type ToastSettings } from '@skeletonlabs/skeleton';
+	import { getToastStore, Tab, TabGroup, type ToastSettings } from '@skeletonlabs/skeleton';
 	import ResponseView from './ResponseView.svelte';
 	import type { Request } from '$lib/Request';
 
@@ -78,7 +78,7 @@
 	function gatherParams(): string {
 		let queryParams = '';
 		if (numOfParams >= 1) {
-			queryParams = queryParams + '?'
+			queryParams = queryParams + '?';
 			for (let i = 0; i < numOfParams; i++) {
 				let param_name: string = (<HTMLInputElement>document.getElementById('param_name_' + i)).value;
 				if (param_name.length === 0) {

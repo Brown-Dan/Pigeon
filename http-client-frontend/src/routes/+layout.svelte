@@ -12,16 +12,15 @@
 	} from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
 	import type { Requests } from '$lib/Request';
-
 	initializeStores();
+	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 
 	function open_request_tab(request: Request) {
 		window.dispatchEvent(new CustomEvent('requestBarClick', { detail: request}));
+
 	}
 
 	let requests: Promise<Requests> = invoke('get_collections', {}).then((value) => <Requests>value);
-
-	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 </script>
 <Toast />
 {#await requests}
