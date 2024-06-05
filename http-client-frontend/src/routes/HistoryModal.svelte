@@ -23,7 +23,6 @@
 	onMount(async () => {
 		try {
 			history = await invoke('get_history');
-			console.log(history.requests)
 			paginationSettings.size = history.requests.length;
 		} catch (error) {
 			console.error('Error fetching history:', error);
