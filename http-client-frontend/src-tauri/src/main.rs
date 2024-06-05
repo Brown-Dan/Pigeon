@@ -2,13 +2,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::collections::HashMap;
-use std::str::FromStr;
 
 use reqwest;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use serde::{Deserialize, Serialize};
 
-use crate::file_service::AddCollectionRequest;
+use crate::file_service::{AddCollectionRequest, Request};
 
 mod file_service;
 
@@ -37,7 +36,7 @@ fn hashmap_to_headers(hashmap: HashMap<String, String>) -> HeaderMap {
 
 #[tauri::command]
 async fn send_request(url: String, headers: HashMap<String, String>) -> String {
-    let response = reqwest::Client::new().get(url).headers(hashmap_to_headers(headers)).send().await;
+    let response = reqwest::Client::new().get(&url).headers(hashmap_to_headers(headers)).send().await;
     let response = match response {
         Ok(response) => response,
         Err(e) => return e.to_string(),
@@ -62,6 +61,13 @@ async fn send_request(url: String, headers: HashMap<String, String>) -> String {
         size,
         headers: headers_map,
     };
+    let historic_request: Request  = Request {
+        name: String::from("test"),
+        url,
+        method: "GET".parse().unwrap()
+    };
+    file_service::add_history(historic_request);
+
     return serde_json::to_string(&my_response).expect("Error");
 }
 

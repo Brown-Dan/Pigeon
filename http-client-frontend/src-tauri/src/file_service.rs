@@ -19,17 +19,42 @@ struct Collection {
     requests: Vec<Request>,
 }
 
-#[derive(Serialize, Deserialize)]
-struct Request {
-    name: String,
-    url: String,
-    method: String,
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Request {
+    pub(crate) name: String,
+    pub(crate) url: String,
+    pub(crate) method: String,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct Requests {
     collections: Vec<Collection>,
     orphaned_requests: Vec<Request>,
+}
+#[derive(Serialize, Deserialize, Debug)]
+struct History {
+    requests: Vec<Request>
+}
+
+pub fn add_history(request: Request) {
+    let mut path: PathBuf = get_pigeon_path();
+    path.push("history.pigeon");
+
+    let result = fs::read(&path);
+    if result.is_err() {
+        let mut requests: Vec<Request> = Vec::new();
+        requests.push(request);
+        let history: History = History {
+            requests
+        };
+        let req: String = serde_json::to_string(&history).unwrap();
+        fs::write(&path,  req).expect("Failed to create 'History.pigeon' file");
+    } else {
+        let req = String::from_utf8(result.unwrap()).expect("Invalid History Contents - Failure converting to String");
+        let mut history: History = serde_json::from_str(&req).expect("Invalid History Contents");
+        history.requests.push(request);
+        fs::write(&path, serde_json::to_string(&history).unwrap()).expect("Failed to write updated history");
+    }
 }
 
 pub fn add_collection(add_collection_request: AddCollectionRequest) -> bool {
@@ -57,6 +82,9 @@ pub fn get_files() -> Requests {
     for result in res {
         let entry: DirEntry = result.unwrap();
         if entry.file_type().unwrap().is_file() {
+            if entry.file_name().eq("history.pigeon") {
+                continue
+            }
             let deserialized_req: Result<String, Error> = fs::read_to_string(entry.path());
             if deserialized_req.is_ok() {
                 orphaned_requests.push(serde_json::from_str(deserialized_req.unwrap().as_str()).unwrap());
