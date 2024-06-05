@@ -4,7 +4,7 @@
 	import {
 		AppBar,
 		AppShell,
-		initializeStores,
+		initializeStores, Modal, type ModalComponent, type ModalSettings,
 		storePopup,
 		Toast,
 		TreeView,
@@ -12,7 +12,19 @@
 	} from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
 	import type { Requests } from '$lib/Request';
+	import HistoryModal from './HistoryModal.svelte';
 	initializeStores();
+
+	import { getModalStore } from '@skeletonlabs/skeleton';
+	const modalStore = getModalStore();
+
+	const modalRegistry: Record<string, ModalComponent> = {
+		modalComponentOne: { ref: HistoryModal }
+	};
+	const historyModal: ModalSettings = {
+		type: 'component',
+		component: 'modalComponentOne',
+	};
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 
 	function open_request_tab(request: Request) {
@@ -23,6 +35,7 @@
 	let requests: Promise<Requests> = invoke('get_collections', {}).then((value) => <Requests>value);
 </script>
 <Toast />
+<Modal components={modalRegistry} />
 {#await requests}
 {:then files}
 	<AppShell>
@@ -40,7 +53,7 @@
 											d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
 							</svg>
 						</button>
-						<button type="button" class="btn-sm variant-filled">
+						<button  on:click={() => 	modalStore.trigger(historyModal)} type="button" class="btn-sm variant-filled">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
 									 stroke="currentColor" class="size-6">
 								<path stroke-linecap="round" stroke-linejoin="round"

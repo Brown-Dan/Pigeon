@@ -2,10 +2,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::collections::HashMap;
+use std::time::{Duration, Instant};
 
 use reqwest;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use serde::{Deserialize, Serialize};
+use file_service::History;
 
 use crate::file_service::{AddCollectionRequest, Request};
 
@@ -13,17 +15,18 @@ mod file_service;
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_collections, send_request, add_collection])
+        .invoke_handler(tauri::generate_handler![get_collections, send_request, add_collection, get_history])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
 #[derive(Serialize, Deserialize)]
-struct Response {
+pub struct Response {
     status: u16,
     size: String,
     body: String,
     headers: HashMap<String, String>,
+    elapsed: Duration
 }
 
 fn hashmap_to_headers(hashmap: HashMap<String, String>) -> HeaderMap {
@@ -36,7 +39,9 @@ fn hashmap_to_headers(hashmap: HashMap<String, String>) -> HeaderMap {
 
 #[tauri::command]
 async fn send_request(url: String, headers: HashMap<String, String>) -> String {
+    let now = Instant::now();
     let response = reqwest::Client::new().get(&url).headers(hashmap_to_headers(headers)).send().await;
+    let elapsed = now.elapsed();
     let response = match response {
         Ok(response) => response,
         Err(e) => return e.to_string(),
@@ -60,13 +65,14 @@ async fn send_request(url: String, headers: HashMap<String, String>) -> String {
         body,
         size,
         headers: headers_map,
+        elapsed
     };
     let historic_request: Request  = Request {
-        name: String::from("test"),
+        name: String::from("_"),
         url,
         method: "GET".parse().unwrap()
     };
-    file_service::add_history(historic_request);
+    file_service::add_history(historic_request, &my_response);
 
     return serde_json::to_string(&my_response).expect("Error");
 }
@@ -79,4 +85,9 @@ fn get_collections() -> file_service::Requests {
 #[tauri::command]
 fn add_collection(config: AddCollectionRequest) -> bool {
     return file_service::add_collection(config);
+}
+
+#[tauri::command]
+fn get_history() -> History {
+    return file_service::get_history();
 }
