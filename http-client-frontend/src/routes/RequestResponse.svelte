@@ -2,12 +2,12 @@
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { getToastStore, Tab, TabGroup, type ToastSettings } from '@skeletonlabs/skeleton';
 	import ResponseView from './ResponseView.svelte';
-	import type { Request } from '$lib/Request';
+	import type { Collection, Request } from '$lib/Request';
+	import { requests } from '$lib/RequestsStore';
+	import { type Writable, writable } from 'svelte/store';
 
 	export let request: Request | undefined;
-
 	const toastStore = getToastStore();
-
 
 	const request_success: ToastSettings = {
 		message: '📤 Sent request',
@@ -27,15 +27,28 @@
 	let requestTabSet: number = 0;
 	let numOfParams: number = 1;
 	let numOfHeaders: number = 1;
-
+	// let current_url = request != undefined ? request.url : '';
 	function send_request() {
+		console.log(request)
+		requests.update((value) => {
+			console.log(request)
+			if (request?.collection_name == "orphan") {
+				console.log("doing req update")
+				console.log(request.url)
+				request.url	= request.url;
+				console.log(request.url)
+				let idx = value.orphaned_requests.indexOf(request, 0);
+				value.orphaned_requests[idx] = request
+			}
+			return value
+		})
+
 		const btn_spinner = document.getElementById('btn_spinner');
 		btn_spinner.removeAttribute('hidden');
 		const btn_content = document.getElementById('btn_content');
 		btn_content?.setAttribute('hidden', 'hidden');
-		const url: string = (<HTMLInputElement>document.getElementById('url')).value;
 		let start_time = window.performance.now();
-		invoke('send_request', { url: url + gatherParams(), headers: gatherHeaders() }).then(value => {
+		invoke('send_request', { url: current_url + gatherParams(), headers: gatherHeaders() }).then(value => {
 				try {
 					let end_time = window.performance.now();
 					time = end_time - start_time;
@@ -130,7 +143,7 @@
 <div class="grid grid-cols-2 min-h-full m-5 overflow-auto">
 	<div class="mt-16">
 		<div class="input-group input-group-divider grid-cols-[1fr_auto] mb-5">
-			<input type="text" placeholder="https://example.com/" id="url" value={request !== undefined ? request.url : ""} />
+			<input bind:value={request.url} type="text" placeholder="https://example.com/" id="url"} />
 			<select id="method">
 				<option value="1">GET</option>
 				<option value="2">PUT</option>
