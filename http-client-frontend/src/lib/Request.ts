@@ -2,6 +2,7 @@ export interface Request {
 	name: string;
 	url: string;
 	method: string;
+	collection_name: String;
 }
 
 export interface Collection {

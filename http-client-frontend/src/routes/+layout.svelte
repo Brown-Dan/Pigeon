@@ -22,6 +22,7 @@
 	import AddCollectionModal from './AddCollectionModal.svelte';
 	import { requests } from '$lib/RequestsStore';
 	import { onMount } from 'svelte';
+	import AddRequestModal from './AddRequestModal.svelte';
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -31,7 +32,8 @@
 
 	const modalRegistry: Record<string, ModalComponent> = {
 		historyModal: { ref: HistoryModal },
-		addCollectionModal: { ref: AddCollectionModal }
+		addCollectionModal: { ref: AddCollectionModal },
+		addRequestModal: { ref: AddRequestModal }
 	};
 	const historyModal: ModalSettings = {
 		type: 'component',
@@ -41,6 +43,11 @@
 		type: 'component',
 		component: 'addCollectionModal'
 	};
+
+	const addRequestModal: ModalSettings = {
+		type: 'component',
+		component: 'addRequestModal'
+	}
 
 	const confirmDeleteModal: ModalSettings = {
 		type: 'confirm',
@@ -157,7 +164,7 @@
 								d="M12 10.5v6m3-3H9m4.06-7.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
 				</svg>
 			</button>
-			<button>
+			<button on:click={() => 	modalStore.trigger(addRequestModal)}>
 				<svg xmlns="http://www.w3.org/2000/svg" fill="#000000" class="size-6" version="1.1" id="Capa_1" viewBox="0 0 482.14 482.14" xml:space="preserve">
 					<g>
 						<path d="M302.599,0H108.966C80.66,0,57.652,23.025,57.652,51.315v379.509c0,28.289,23.008,51.315,51.314,51.315h264.205   c28.275,0,51.316-23.026,51.316-51.315V121.449L302.599,0z M373.171,450.698H108.966c-10.969,0-19.89-8.905-19.89-19.874V51.315   c0-10.953,8.921-19.858,19.89-19.858l181.875-0.189v67.218c0,19.653,15.949,35.603,35.588,35.603l65.877-0.189l0.725,296.925   C393.03,441.793,384.142,450.698,373.171,450.698z"/>

@@ -27,6 +27,7 @@ pub struct Request {
     pub(crate) name: String,
     pub(crate) url: String,
     pub(crate) method: String,
+    pub(crate) collection_name: String
 }
 
 #[derive(Serialize, Deserialize)]
@@ -104,6 +105,17 @@ pub fn delete_collection(collection_name: String) {
     let mut path: PathBuf = get_pigeon_path();
     path.push(&collection_name);
     fs::remove_dir_all(path).unwrap()
+}
+
+pub fn add_request(request: Request) {
+    let mut path: PathBuf = get_pigeon_path();
+    if request.collection_name.ne("orphan") {
+        path.push(&request.collection_name);
+    }
+    path.push(&request.name);
+
+    let contents: String = serde_json::to_string(&request).unwrap();
+    fs::write(&path, contents).unwrap()
 }
 
 pub fn add_collection(add_collection_request: AddCollectionRequest) -> bool {
