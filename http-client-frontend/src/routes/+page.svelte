@@ -1,7 +1,7 @@
 <script lang="ts">
-	import RequestResponse from './RequestResponse.svelte';
+	import RequestResponse from '$lib/components/RequestResponse.svelte';
 	import { Tab, TabGroup } from '@skeletonlabs/skeleton';
-	import type { Request } from '$lib/Models';
+	import { get_scratchpad, type Request } from '$lib/Models';
 
 	let tabSet: number = 0;
 	let request_tabs: Request[] = [];
@@ -42,6 +42,8 @@
 	<svelte:fragment slot="panel">
 		{#if request_tabs.at(tabSet) !== undefined}
 			<RequestResponse request={request_tabs.at(tabSet)} />
+			{:else}
+			<RequestResponse request={get_scratchpad()} />
 		{/if}
 	</svelte:fragment>
 </TabGroup>

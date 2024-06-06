@@ -3,9 +3,10 @@ export interface Request {
 	url: string;
 	method: string;
 	collection_name: String;
-	headers: Header[]
-	query_params: QueryParam[]
+	headers: Header[];
+	query_params: QueryParam[];
 }
+
 export interface QueryParam {
 	name: string;
 	value: string;
@@ -30,16 +31,16 @@ export interface Requests {
 }
 
 export interface History {
-	requests: HistoricRequest[]
+	requests: HistoricRequest[];
 }
 
 export interface HistoricRequest {
-	time: SinceEpochTime
+	time: SinceEpochTime;
 	url: string;
 	method: string;
 	response_status: string;
 	size: string;
-	speed: Duration
+	speed: Duration;
 }
 
 export interface SinceEpochTime {
@@ -60,12 +61,22 @@ export interface Response {
 	elapsed: Duration
 }
 
+export function get_scratchpad(): Request {
+	return {
+		name: 'scratchpad',
+		url: 'https://example.com',
+		method: "GET",
+		collection_name: "scratchpad",
+		headers: [],
+		query_params: []
+	};
+}
 
 export function duration_to_string(duration: Duration): string {
-	console.log(duration, "duration")
+	console.log(duration, 'duration');
 	if (duration.nanos > 1000000000) {
-		return duration + "s"
+		return duration + 's';
 	} else {
-		return (duration.nanos / 1000000).toFixed() + "ms"
+		return (duration.nanos / 1000000).toFixed() + 'ms';
 	}
 }
