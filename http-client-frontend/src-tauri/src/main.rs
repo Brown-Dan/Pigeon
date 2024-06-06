@@ -5,8 +5,9 @@ use std::collections::HashMap;
 use std::time::{Duration, Instant};
 
 use reqwest;
-use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
+use reqwest::header::{HeaderMap, HeaderName, HeaderValue, InvalidHeaderName};
 use serde::{Deserialize, Serialize};
+
 use file_service::History;
 
 use crate::file_service::{AddCollectionRequest, Request};
@@ -25,34 +26,67 @@ pub struct Response {
     status: u16,
     size: String,
     body: String,
-    headers: HashMap<String, String>,
+    headers: Vec<Header>,
     elapsed: Duration,
 }
 
-fn hashmap_to_headers(hashmap: HashMap<String, String>) -> HeaderMap {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Header {
+    name: String,
+    value: String,
+    enabled: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct QueryParam {
+    name: String,
+    value: String,
+    enabled: bool,
+}
+
+fn vector_to_query_params(query_params: &Vec<QueryParam>) -> HashMap<&String, &String> {
+    let mut query_params_map = HashMap::new();
+    for query_param in query_params {
+        if query_param.enabled {
+            query_params_map.insert(&query_param.name, &query_param.value);
+        }
+    }
+    return query_params_map;
+ }
+
+fn vector_to_header_map(headers: &Vec<Header>) -> HeaderMap {
     let mut header_map = HeaderMap::new();
-    for (k, v) in hashmap {
-        header_map.append(HeaderName::from_bytes(k.as_bytes()).unwrap(), HeaderValue::from_str(&*v).unwrap());
+    for header in headers {
+        let header_name: Result<HeaderName, InvalidHeaderName> = HeaderName::from_bytes(header.name.as_bytes());
+        if header_name.is_err() || !header.enabled {
+            continue;
+        }
+        header_map.append(header_name.unwrap(), HeaderValue::from_str(&*header.value).unwrap());
     }
     return header_map;
 }
 
 #[tauri::command]
-async fn send_request(url: String, headers: HashMap<String, String>) -> String {
+async fn send_request(request: Request) -> String {
     let now = Instant::now();
-    let response = reqwest::Client::new().get(&url).headers(hashmap_to_headers(headers)).send().await;
+    // TODO query params
+    let response = reqwest::Client::new()
+        .get(&request.url)
+        .query(&vector_to_query_params(&request.query_params))
+        .headers(vector_to_header_map(&request.headers))
+        .send().await;
     let elapsed = now.elapsed();
     let response = match response {
         Ok(response) => response,
         Err(e) => return e.to_string(),
     };
     let status = response.status().as_u16();
-    let headers = response.headers();
+    let response_headers = response.headers();
 
-    let mut headers_map = HashMap::new();
-    for (key, value) in headers.iter() {
+    let mut response_headers_vec: Vec<Header> = Vec::new();
+    for (key, value) in response_headers.iter() {
         let header_value = value.to_str().unwrap().to_string();
-        headers_map.insert(key.to_string(), header_value);
+        response_headers_vec.push(Header { name: key.to_string(), value: header_value, enabled: false });
     }
 
     let body = match response.text().await {
@@ -64,14 +98,16 @@ async fn send_request(url: String, headers: HashMap<String, String>) -> String {
         status,
         body,
         size,
-        headers: headers_map,
+        headers: response_headers_vec,
         elapsed,
     };
     let historic_request: Request = Request {
         name: String::from("_"),
-        url,
+        url: request.url,
         method: "GET".parse().unwrap(),
-        collection_name: String::from("_")
+        collection_name: String::from("_"),
+        headers: request.headers,
+        query_params: request.query_params
     };
     file_service::add_history(historic_request, &my_response);
 

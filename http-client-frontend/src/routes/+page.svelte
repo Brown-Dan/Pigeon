@@ -1,13 +1,12 @@
 <script lang="ts">
 	import RequestResponse from './RequestResponse.svelte';
 	import { Tab, TabGroup } from '@skeletonlabs/skeleton';
-	import type { Request, Requests } from '$lib/Request';
-	import { invoke } from '@tauri-apps/api/tauri';
+	import type { Request } from '$lib/Models';
 
 	let tabSet: number = 0;
 	let request_tabs: Request[] = [];
 
-	function handleNewTabEvent(event: Event) {
+	function handleRequestBarClick(event: CustomEvent) {
 		let idx: number = request_tabs.indexOf(event.detail, 0);
 		if (idx !== -1) {
 			tabSet = idx;
@@ -25,12 +24,9 @@
 		tabSet -= 1;
 	}
 
-	let requests: Promise<Requests> = invoke('get_collections', {}).then((value) => <Requests>value);
-
-
 </script>
-<svelte:window on:requestBarClick={(e) => handleNewTabEvent(e)} />
-<TabGroup class="mt-5" on:message={(event) => handleNewTabEvent(event)}>
+<svelte:window on:requestBarClick={handleRequestBarClick} />
+<TabGroup class="mt-5" on:message={(event) => handleRequestBarClick(event)}>
 	{#each request_tabs as request, i}
 		<Tab bind:group={tabSet} name="tab{i}" value={i}>{request.name}
 			<button on:click={() => close_tab(i)} type="button"
@@ -44,7 +40,9 @@
 	{/each}
 
 	<svelte:fragment slot="panel">
+		{#if request_tabs.at(tabSet) !== undefined}
 			<RequestResponse request={request_tabs.at(tabSet)} />
+		{/if}
 	</svelte:fragment>
 </TabGroup>
 

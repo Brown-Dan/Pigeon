@@ -3,7 +3,7 @@
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { requests } from '$lib/RequestsStore';
-	import type { Collection } from '$lib/Request';
+	import type { Collection } from '$lib/Models';
 
 	export let parent: SvelteComponent;
 	const modalStore = getModalStore();

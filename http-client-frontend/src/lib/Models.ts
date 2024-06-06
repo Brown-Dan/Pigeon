@@ -3,6 +3,19 @@ export interface Request {
 	url: string;
 	method: string;
 	collection_name: String;
+	headers: Header[]
+	query_params: QueryParam[]
+}
+export interface QueryParam {
+	name: string;
+	value: string;
+	enabled: boolean;
+}
+
+export interface Header {
+	name: string;
+	value: string;
+	enabled: boolean;
 }
 
 export interface Collection {
@@ -39,7 +52,17 @@ export interface Duration {
 	nanos: number
 }
 
+export interface Response {
+	status: string,
+	size: string,
+	body: string,
+	headers: Header[],
+	elapsed: Duration
+}
+
+
 export function duration_to_string(duration: Duration): string {
+	console.log(duration, "duration")
 	if (duration.nanos > 1000000000) {
 		return duration + "s"
 	} else {

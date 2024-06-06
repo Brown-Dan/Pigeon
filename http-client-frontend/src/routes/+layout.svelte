@@ -17,7 +17,7 @@
 		TreeViewItem
 	} from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
-	import type { Request, Requests } from '$lib/Request';
+	import type { Request, Requests } from '$lib/Models';
 	import HistoryModal from './HistoryModal.svelte';
 	import AddCollectionModal from './AddCollectionModal.svelte';
 	import { requests } from '$lib/RequestsStore';
@@ -99,23 +99,18 @@
 		modalStore.trigger(confirmDeleteModal);
 	}
 
-	function beforeUnload() {
-		requests_result.orphaned_requests.forEach(r => invoke("add_request", {request : r}))
-	}
-
 </script>
 
 <div class="card w-48 shadow-xl py-2 text-center" data-popup="collectionSettingsPopup">
 
 	<div class="btn-group-vertical min-w-full">
-		<button>Add Request</button>
+		<button>Add Models</button>
 		<button>Environments</button>
 		<button on:click={delete_collection}>Delete</button>
 	</div>
 	<div class="arrow bg-surface-100-800-token" />
 </div>
 
-<svelte:window on:beforeunload={beforeUnload}/>
 <Toast />
 <Modal components={modalRegistry} />
 <AppShell>

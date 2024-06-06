@@ -7,7 +7,7 @@ use std::time::{Duration, SystemTime};
 
 use serde::{Deserialize, Serialize};
 
-use crate::Response;
+use crate::{Header, QueryParam, Response};
 
 #[derive(Serialize, Deserialize)]
 pub struct AddCollectionRequest {
@@ -27,7 +27,9 @@ pub struct Request {
     pub(crate) name: String,
     pub(crate) url: String,
     pub(crate) method: String,
-    pub(crate) collection_name: String
+    pub(crate) collection_name: String,
+    pub(crate) headers: Vec<Header>, 
+    pub(crate) query_params: Vec<QueryParam>
 }
 
 #[derive(Serialize, Deserialize)]
@@ -112,7 +114,10 @@ pub fn add_request(request: Request) {
     if request.collection_name.ne("orphan") {
         path.push(&request.collection_name);
     }
-    path.push(&request.name);
+    let pigeon_ext: String = String::from(".pigeon");
+    let mut file: String = request.name.clone();
+    file.push_str(&pigeon_ext);
+    path.push(file);
 
     let contents: String = serde_json::to_string(&request).unwrap();
     fs::write(&path, contents).unwrap()

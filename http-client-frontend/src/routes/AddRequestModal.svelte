@@ -3,7 +3,7 @@
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { requests } from '$lib/RequestsStore';
-	import type { Collection, Request } from '$lib/Request';
+	import type { Collection, Request } from '$lib/Models';
 
 	export let parent: SvelteComponent;
 	const modalStore = getModalStore();
@@ -20,7 +20,9 @@
 			name: formData.name,
 			url: formData.url,
 			method: formData.method,
-			collection_name: 'orphan'
+			collection_name: 'orphan',
+			headers: [],
+			query_params: []
 		};
 
 		invoke('add_request', { request: new_request });
@@ -34,7 +36,7 @@
 
 {#if $modalStore[0]}
 	<div class="modal-example-form card p-4 w-modal shadow-xl space-y-4">
-		<header class="text-2xl font-bold">Create Request</header>
+		<header class="text-2xl font-bold">Create Models</header>
 		<form class="modal-form border border-surface-500 p-4 space-y-4 rounded-container-token">
 			<label class="label">
 				<span>Name</span>
@@ -46,7 +48,7 @@
 			</label>
 			<label class="label">
 				<span>Method</span>
-				<input class="input" type="tel" bind:value={formData.method} placeholder="Select Request Method" />
+				<input class="input" type="tel" bind:value={formData.method} placeholder="Select Models Method" />
 			</label>
 		</form>
 		<footer class="modal-footer {parent.regionFooter}">

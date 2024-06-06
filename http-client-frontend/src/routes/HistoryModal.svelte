@@ -2,7 +2,7 @@
 	import { onMount, type SvelteComponent } from 'svelte';
 	import { getModalStore, type PaginationSettings, Paginator } from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
-	import { duration_to_string, type History } from '$lib/Request';
+	import { duration_to_string, type History } from '$lib/Models';
 
 	export let parent: SvelteComponent;
 	const modalStore = getModalStore();
@@ -34,7 +34,7 @@
 {#if $modalStore[0]}
 	<div class="modal-example-fullscreen bg-surface-100-800-token w-screen h-screen p-4 flex justify-center items-center">
 		<div class="flex flex-col items-center space-y-4">
-			<h2 class="h2">Request History</h2>
+			<h2 class="h2">Models History</h2>
 
 
 			<div class="table-container">
@@ -42,7 +42,7 @@
 					<thead>
 					<tr>
 						<th>Time</th>
-						<th>Request Url</th>
+						<th>Models Url</th>
 						<th>Method</th>
 						<th>Status</th>
 						<th>Size</th>
