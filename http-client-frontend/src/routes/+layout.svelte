@@ -94,8 +94,13 @@
 	let selected_collection: string;
 
 	async function delete_collection() {
+		console.log(requests_result.orphaned_requests)
 		collectionSettingsPopup.closeQuery;
 		modalStore.trigger(confirmDeleteModal);
+	}
+
+	function beforeUnload() {
+		requests_result.orphaned_requests.forEach(r => invoke("add_request", {request : r}))
 	}
 
 </script>
@@ -110,6 +115,7 @@
 	<div class="arrow bg-surface-100-800-token" />
 </div>
 
+<svelte:window on:beforeunload={beforeUnload}/>
 <Toast />
 <Modal components={modalRegistry} />
 <AppShell>
