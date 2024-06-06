@@ -4,6 +4,8 @@
 	import ResponseView from './ResponseView.svelte';
 	import { requests } from '$lib/RequestsStore';
 	import type { Request, Response } from '$lib/Models';
+	import HeadersForm from '$lib/components/HeadersForm.svelte';
+	import QueryParamsForm from '$lib/components/QueryParamsForm.svelte';
 
 	export let request: Request;
 
@@ -43,25 +45,6 @@
 			});
 	}
 
-	function add_query_param() {
-		request.query_params.push({name: "", value: "", enabled: true})
-		request.query_params = request.query_params
-	}
-
-	function delete_query_params() {
-		request.query_params = []
-		request.query_params = request.query_params
-	}
-
-	function add_header() {
-		request.headers.push({name: "", value: "", enabled: true})
-		request.headers = request.headers
-	}
-
-	function delete_headers() {
-		request.headers = []
-		request.headers = request.headers
-	}
 </script>
 <div class="grid grid-cols-2 min-h-full m-5 overflow-auto">
 	<div class="mt-16">
@@ -88,45 +71,19 @@
 											placeholder="TODO - Add Support For Request Bodies" />
 					</label>
 				</div>
-				<div hidden={current_tab !== 1} id="queryParams">
-					<div class="btn-group variant-filled mb-5">
-						<button type="button" class=" btn-sm" on:click={add_query_param}>Add</button>
-						<button type="button" class=" btn-sm" on:click={delete_query_params}>Delete All</button>
-					</div>
-					{#each request.query_params as query_param}
-						<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-3">
-							<input bind:value={query_param.name} type="text" placeholder="name" disabled={!query_param.enabled} />
-							<input bind:value={query_param.value} type="text" placeholder="value" disabled={!query_param.enabled} />
-							<div class="input-group-shim"><input bind:checked={query_param.enabled} class="checkbox" type="checkbox"/></div>
-						</div>
-					{/each}
+				<div hidden={current_tab !== 1}>
+					<QueryParamsForm {request} />
 				</div>
-				<div hidden={current_tab !== 2} id="headers">
-					<div class="btn-group variant-filled mb-5">
-						<button type="button" class=" btn-sm" on:click={add_header}>Add</button>
-						<button type="button" class=" btn-sm" on:click={delete_headers}>Delete All</button>
-					</div>
-					<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-3">
-						<input type="text" placeholder="name" disabled value="Accept" />
-						<input type="text" placeholder="value" id="accept" value="*/*" />
-					</div>
-					<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-3">
-						<input type="text" placeholder="name" disabled value="Host" />
-						<input type="text" placeholder="value" id="host" disabled value="<calculated at runtime>" />
-					</div>
-					{#each request.headers.filter(h => h.name !== "Accept" && h.name !== "Host") as header}
-						<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-3">
-							<input bind:value={header.name} type="text" placeholder="name" disabled={!header.enabled} />
-							<input bind:value={header.value} type="text" placeholder="value" disabled={!header.enabled} />
-							<div class="input-group-shim"><input bind:checked={header.enabled} class="checkbox" type="checkbox"/></div>
-						</div>
-					{/each}
+				<div hidden={current_tab !== 2}>
+					<HeadersForm {request} />
 				</div>
 			</svelte:fragment>
 		</TabGroup>
 		<button on:click={send_request} type="button" class="btn btn-xl variant-filled mt-5 text">
-			<svg class="{pending_request === false ? 'hidden' : ''}  w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none"
-					 xmlns="http://www.w3.org/2000/svg">
+			<svg
+				class="{pending_request === false ? 'hidden' : ''}  w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+				viewBox="0 0 100 101" fill="none"
+				xmlns="http://www.w3.org/2000/svg">
 				<path
 					d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
 					fill="currentColor" />
