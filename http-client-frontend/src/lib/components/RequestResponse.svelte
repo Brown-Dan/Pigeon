@@ -1,11 +1,42 @@
 <script lang="ts">
 	import { invoke } from '@tauri-apps/api/tauri';
-	import { getToastStore, Tab, TabGroup, type ToastSettings } from '@skeletonlabs/skeleton';
+	import { getToastStore, storeHighlightJs, Tab, TabGroup, type ToastSettings } from '@skeletonlabs/skeleton';
 	import ResponseView from './ResponseView.svelte';
 	import { requests } from '$lib/RequestsStore';
 	import type { Request, Response } from '$lib/Models';
 	import HeadersForm from '$lib/components/HeadersForm.svelte';
 	import QueryParamsForm from '$lib/components/QueryParamsForm.svelte';
+	import Quill, { type QuillOptions } from 'quill';
+	import "quill/dist/quill.snow.css";
+	import hljs from 'highlight.js';
+	import 'highlight.js/styles/srcery.css';
+	import json from 'highlight.js/lib/languages/json';
+
+	hljs.registerLanguage('json', json);
+	storeHighlightJs.set(hljs);
+
+	const jsonSyntaxModule = {
+		highlight: (text: string) => {
+			const highlighted = hljs.highlight('json', text).value;
+			const lines = highlighted.split('\n');
+			const numberedLines = lines.map((line, index) => `<span class="line">${index + 1}</span>${line}`).join('\n');
+			return `<pre><code class="hljs">${numberedLines}</code></pre>`;
+		}
+	};
+
+	import { onMount } from 'svelte';
+
+	onMount(() => {
+		const options: QuillOptions = {
+			debug: 'info',
+			modules: {
+				toolbar: [['code-block']],
+				syntax: jsonSyntaxModule
+			},
+			theme: 'snow'
+		};
+		const quill = new Quill('#editor', options);
+	})
 
 	export let request: Request;
 
@@ -66,10 +97,7 @@
 			<Tab bind:group={current_tab} name="tab3" value={2}>Headers</Tab>
 			<svelte:fragment slot="panel">
 				<div hidden={current_tab !== 0} id="body">
-					<label class="label">
-						<textarea class="textarea" rows="4"
-											placeholder="TODO - Add Support For Request Bodies" />
-					</label>
+				<div id="editor"></div>
 				</div>
 				<div hidden={current_tab !== 1}>
 					<QueryParamsForm {request} />
