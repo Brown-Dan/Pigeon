@@ -104,7 +104,7 @@
 <div class="card w-48 shadow-xl py-2 text-center" data-popup="collectionSettingsPopup">
 
 	<div class="btn-group-vertical min-w-full">
-		<button>Add Models</button>
+		<button>Add Request</button>
 		<button>Environments</button>
 		<button on:click={delete_collection}>Delete</button>
 	</div>
