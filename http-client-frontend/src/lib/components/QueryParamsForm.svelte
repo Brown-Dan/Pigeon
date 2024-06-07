@@ -23,9 +23,9 @@
 	<button type="button" class=" btn-sm" on:click={delete_query_params}>Delete All</button>
 </div>
 {#each request.query_params as query_param, index}
-	<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-3">
-		<input bind:value={query_param.name} type="text" placeholder="name" disabled={!query_param.enabled} />
-		<input bind:value={query_param.value} type="text" placeholder="value" disabled={!query_param.enabled} />
+	<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] mb-4">
+		<input class="text-xs"  bind:value={query_param.name} type="text" placeholder="name" disabled={!query_param.enabled} />
+		<input class="text-xs " bind:value={query_param.value} type="text" placeholder="value" disabled={!query_param.enabled} />
 		<div class="input-group-shim">
 			<input bind:checked={query_param.enabled} class="checkbox" type="checkbox"/>
 			<button on:click={() => delete_query_param(index)} type="button" class="btn-icon variant-filled m-2 ml-5">

@@ -23,17 +23,17 @@
 	<button type="button" class=" btn-sm" on:click={delete_headers}>Delete All</button>
 </div>
 <div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-3">
-	<input type="text" placeholder="name" disabled value="Accept" />
-	<input type="text" placeholder="value" id="accept" value="*/*" />
+	<input class="text-xs" type="text" placeholder="name" disabled value="Accept" />
+	<input class="text-xs" type="text" placeholder="value" id="accept" value="*/*" />
 </div>
-<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-3">
-	<input type="text" placeholder="name" disabled value="Host" />
-	<input type="text" placeholder="value" id="host" disabled value="<calculated at runtime>" />
+<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-4">
+	<input class="text-xs" type="text" placeholder="name" disabled value="Host" />
+	<input class="text-xs" type="text" placeholder="value" id="host" disabled value="<calculated at runtime>" />
 </div>
 {#each request.headers.filter(h => h.name !== "Accept" && h.name !== "Host") as header, index}
-	<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-3">
-		<input bind:value={header.name} type="text" placeholder="name" disabled={!header.enabled} />
-		<input bind:value={header.value} type="text" placeholder="value" disabled={!header.enabled} />
+	<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-4">
+		<input class="text-xs" bind:value={header.name} type="text" placeholder="name" disabled={!header.enabled} />
+		<input class="text-xs" bind:value={header.value} type="text" placeholder="value" disabled={!header.enabled} />
 		<div class="input-group-shim">
 			<input bind:checked={header.enabled} class="checkbox" type="checkbox"/>
 			<button on:click={() => delete_header(index)} type="button" class="btn-icon variant-filled m-2 ml-5">

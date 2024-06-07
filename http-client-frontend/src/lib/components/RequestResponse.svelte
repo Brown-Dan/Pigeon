@@ -57,7 +57,7 @@
 					response = {
 						status: json.status,
 						size: json.size,
-						body: json.body,
+						body: JSON.stringify(json.body),
 						headers: json.headers,
 						elapsed: json.elapsed
 					};
@@ -68,8 +68,8 @@
 	}
 
 </script>
-<div class="grid grid-cols-2 min-h-full m-5 overflow-auto">
-	<div class="mt-16">
+<div class="grid grid-cols-10 min-h-max m-5">
+	<div class="mt-16 col-span-4">
 		<div class="input-group input-group-divider grid-cols-[1fr_auto] mb-5">
 			<input bind:value={request.url} type="text" placeholder="https://example.com/" id="url" />
 			<select bind:value={request.method} id="method">
@@ -111,17 +111,19 @@
 			<b hidden={pending_request}>Send</b>
 		</button>
 	</div>
-	{#if response !== undefined}
-		<ResponseView {response} />
-	{:else}
-		<div class="card m-5 p-4 text-white text-xl text-center max-h-40">
-			<section class="p-4">
-				<kbd class="kbd">⌘ + Enter</kbd> to send a request.
-				<br>
-				<kbd class="kbd">⌘ + E</kbd> to edit environment.
-			</section>
-		</div>
-	{/if}
+	<div class="col-span-6">
+		{#if response !== undefined}
+			<ResponseView {response} />
+		{:else}
+			<div class="card m-5 p-4 text-white text-xl text-center">
+				<section class="p-4">
+					<kbd class="kbd">⌘ + Enter</kbd> to send a request.
+					<br>
+					<kbd class="kbd">⌘ + E</kbd> to edit environment.
+				</section>
+			</div>
+		{/if}
+	</div>
 </div>
 
 

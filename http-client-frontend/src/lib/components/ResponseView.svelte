@@ -28,7 +28,9 @@
 		<svelte:fragment slot="panel">
 			{#if current_tab_index === 0}
 				<div class="border-white min-w-screen min-h-screen text-black rounded-2xl text-wrap p-5 overflow-scroll">
-					<CodeBlock lineNumbers language="json" code={response.body}></CodeBlock>
+					<pre>
+						 <CodeBlock lineNumbers language="json" code={response.body}></CodeBlock>
+					</pre>
 				</div>
 			{:else if current_tab_index === 1}
 				<div class="table-container">
