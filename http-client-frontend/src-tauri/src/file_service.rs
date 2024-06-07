@@ -12,19 +12,16 @@ pub fn get_history() -> History {
     let mut path: PathBuf = get_pigeon_path();
     path.push("history.pigeon");
 
-    let result = fs::read(&path);
-
-    if result.is_ok() {
-        let mut history: History = serde_json::from_str(&*String::from_utf8(result.unwrap()).unwrap()).expect("Invalid History Contents");
-        history.requests.reverse();
-        return history;
-    }
-    return History {
-        requests: Vec::new()
-    };
+    fs::read(&path)
+        .map_or(History { requests: Vec::new() },
+                |history_as_bytes: Vec<u8>| {
+                    let mut history: History = serde_json::from_str(&*String::from_utf8(history_as_bytes).unwrap()).unwrap();
+                    history.requests.reverse();
+                    return history;
+                })
 }
 
-fn map_request_to_historic_request(request: Request, response: &Response) -> HistoricRequest {
+fn build_historic_request(request: Request, response: &Response) -> HistoricRequest {
     return HistoricRequest {
         time: SystemTime::now(),
         url: request.url,
@@ -39,7 +36,7 @@ pub fn add_history(request: Request, response: &Response) {
     let mut path: PathBuf = get_pigeon_path();
     path.push("history.pigeon");
 
-    let historic_request: HistoricRequest = map_request_to_historic_request(request, response);
+    let historic_request: HistoricRequest = build_historic_request(request, response);
 
     let result = fs::read(&path);
     if result.is_err() {
