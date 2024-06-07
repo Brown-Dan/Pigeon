@@ -2,17 +2,17 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::collections::HashMap;
-use std::time::{Duration, Instant};
+use std::str::FromStr;
+use std::time::Instant;
 
 use reqwest;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue, InvalidHeaderName};
-use serde::{Deserialize, Serialize};
 
-use file_service::History;
-
-use crate::file_service::{AddCollectionRequest, Request};
+use crate::model::{AddCollectionRequest, Header, History, QueryParam, Request, Requests, Response};
 
 mod file_service;
+mod request_service;
+mod model;
 
 fn main() {
     tauri::Builder::default()
@@ -21,58 +21,17 @@ fn main() {
         .expect("error while running tauri application");
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct Response {
-    status: u16,
-    size: String,
-    body: String,
-    headers: Vec<Header>,
-    elapsed: Duration,
+fn map_query_param_vec_to_hashmap(query_params: &Vec<QueryParam>) -> HashMap<&String, &String> {
+    return query_params.iter().map( |item: &QueryParam|  (&item.name, &item.value) ).collect();
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Header {
-    name: String,
-    value: String,
-    enabled: bool,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-enum RequestMethod {
-    GET,
-    POST,
-    PATCH,
-    DELETE,
-    PUT,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct QueryParam {
-    name: String,
-    value: String,
-    enabled: bool,
-}
-
-fn vector_to_query_params(query_params: &Vec<QueryParam>) -> HashMap<&String, &String> {
-    let mut query_params_map = HashMap::new();
-    for query_param in query_params {
-        if query_param.enabled {
-            query_params_map.insert(&query_param.name, &query_param.value);
+fn map_header_vec_to_hashmap(headers: &Vec<Header>) -> HeaderMap {
+    headers.iter().filter_map(|item: &Header| {
+        match item.enabled {
+            true => Some((HeaderName::from_str(&item.name).unwrap(),  HeaderValue::from_str(&*item.value).unwrap())),
+            false => None
         }
-    }
-    return query_params_map;
-}
-
-fn vector_to_header_map(headers: &Vec<Header>) -> HeaderMap {
-    let mut header_map = HeaderMap::new();
-    for header in headers {
-        let header_name: Result<HeaderName, InvalidHeaderName> = HeaderName::from_bytes(header.name.as_bytes());
-        if header_name.is_err() || !header.enabled {
-            continue;
-        }
-        header_map.append(header_name.unwrap(), HeaderValue::from_str(&*header.value).unwrap());
-    }
-    return header_map;
+    }).collect()
 }
 
 #[tauri::command]
@@ -80,8 +39,8 @@ async fn send_request(request: Request) -> String {
     let now = Instant::now();
     let response = reqwest::Client::new()
         .get(&request.url)
-        .query(&vector_to_query_params(&request.query_params))
-        .headers(vector_to_header_map(&request.headers))
+        .query(&map_query_param_vec_to_hashmap(&request.query_params))
+        .headers(map_header_vec_to_hashmap(&request.headers))
         .send().await;
     let elapsed = now.elapsed();
     let response = match response {
@@ -123,7 +82,7 @@ async fn send_request(request: Request) -> String {
 }
 
 #[tauri::command]
-fn get_collections() -> file_service::Requests {
+fn get_collections() -> Requests {
     return file_service::get_files();
 }
 

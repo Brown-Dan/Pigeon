@@ -3,55 +3,10 @@ use std::fs;
 use std::fs::DirEntry;
 use std::io::Error;
 use std::path::PathBuf;
-use std::time::{Duration, SystemTime};
+use std::time::SystemTime;
 
-use serde::{Deserialize, Serialize};
-
-use crate::{Header, QueryParam, RequestMethod, Response};
-
-#[derive(Serialize, Deserialize)]
-pub struct AddCollectionRequest {
-    name: String,
-    description: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct Collection {
-    name: String,
-    description: String,
-    requests: Vec<Request>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Request {
-    pub(crate) name: String,
-    pub(crate) url: String,
-    pub(crate) method: RequestMethod,
-    pub(crate) collection_name: String,
-    pub(crate) headers: Vec<Header>, 
-    pub(crate) query_params: Vec<QueryParam>
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct Requests {
-    collections: Vec<Collection>,
-    orphaned_requests: Vec<Request>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct History {
-    requests: Vec<HistoricRequest>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct HistoricRequest {
-    pub(crate) time: SystemTime,
-    pub(crate) url: String,
-    pub(crate) method: RequestMethod,
-    pub(crate) response_status: u16,
-    pub(crate) size: String,
-    pub(crate) speed: Duration,
-}
+use crate::model::{AddCollectionRequest, Collection, HistoricRequest, History, Request, Requests};
+use crate::Response;
 
 pub fn get_history() -> History {
     let mut path: PathBuf = get_pigeon_path();
