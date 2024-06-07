@@ -42,7 +42,7 @@
 					<thead>
 					<tr>
 						<th>Time</th>
-						<th>Models Url</th>
+						<th>Request Url</th>
 						<th>Method</th>
 						<th>Status</th>
 						<th>Size</th>
