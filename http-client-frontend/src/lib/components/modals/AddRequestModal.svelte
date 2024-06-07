@@ -3,7 +3,7 @@
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { requests } from '$lib/RequestsStore';
-	import type { Collection, Request } from '$lib/Models';
+	import type { Request } from '$lib/Models';
 
 	export let parent: SvelteComponent;
 	const modalStore = getModalStore();
@@ -11,7 +11,7 @@
 	const formData = {
 		name: '',
 		url: '',
-		method: ''
+		method: 'GET'
 	};
 
 	function onFormSubmit(): void {
@@ -20,14 +20,18 @@
 			name: formData.name,
 			url: formData.url,
 			method: formData.method,
-			collection_name: 'orphan',
+			collection_name: $modalStore[0].meta.name === undefined ? 'orphan' : $modalStore[0].meta.name,
 			headers: [],
 			query_params: []
 		};
 
 		invoke('add_request', { request: new_request });
 		requests.update((value) => {
-			value.orphaned_requests.push(new_request);
+			if (new_request.collection_name === 'orphan') {
+				value.orphaned_requests.push(new_request);
+			} else {
+				value.collections.filter(c => c.name === new_request.collection_name)[0].requests.push(new_request);
+			}
 			return value;
 		});
 		modalStore.close();
@@ -48,7 +52,13 @@
 			</label>
 			<label class="label">
 				<span>Method</span>
-				<input class="input" type="tel" bind:value={formData.method} placeholder="Select Models Method" />
+				<select class="select" bind:value={formData.method} id="method">
+					<option value="GET">GET</option>
+					<option value="PUT">PUT</option>
+					<option value="PATCH">PATCH</option>
+					<option value="DELETE">DELETE</option>
+					<option value="POST">POST</option>
+				</select>
 			</label>
 		</form>
 		<footer class="modal-footer {parent.regionFooter}">

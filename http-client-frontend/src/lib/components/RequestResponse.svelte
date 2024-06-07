@@ -7,15 +7,15 @@
 	import HeadersForm from '$lib/components/HeadersForm.svelte';
 	import QueryParamsForm from '$lib/components/QueryParamsForm.svelte';
 	import Quill, { type QuillOptions } from 'quill';
-	import "quill/dist/quill.snow.css";
+	import 'quill/dist/quill.snow.css';
 	import hljs from 'highlight.js';
 	import 'highlight.js/styles/srcery.css';
 	import json from 'highlight.js/lib/languages/json';
+	import { onMount } from 'svelte';
+	import UrlMethodInput from '$lib/components/UrlMethodInput.svelte';
 
 	hljs.registerLanguage('json', json);
 	storeHighlightJs.set(hljs);
-
-	import { onMount } from 'svelte';
 
 	onMount(() => {
 		const options: QuillOptions = {
@@ -27,7 +27,7 @@
 			theme: 'snow'
 		};
 		const quill = new Quill('#editor', options);
-	})
+	});
 
 	export let request: Request;
 
@@ -70,16 +70,7 @@
 </script>
 <div class="grid grid-cols-10 min-h-max m-5">
 	<div class="mt-16 col-span-4">
-		<div class="input-group input-group-divider grid-cols-[1fr_auto] mb-5">
-			<input bind:value={request.url} type="text" placeholder="https://example.com/" id="url" />
-			<select bind:value={request.method} id="method">
-				<option value="GET">GET</option>
-				<option value="PUT">PUT</option>
-				<option value="PATCH">PATCH</option>
-				<option value="DELETE">DELETE</option>
-				<option value="POST">POST</option>
-			</select>
-		</div>
+		<UrlMethodInput {request} />
 		<TabGroup>
 			<Tab bind:group={current_tab} name="tab1" value={0}>Body</Tab>
 			<Tab bind:group={current_tab} name="tab2" value={1}>Parameters</Tab>
