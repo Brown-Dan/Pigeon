@@ -15,15 +15,6 @@
 	hljs.registerLanguage('json', json);
 	storeHighlightJs.set(hljs);
 
-	const jsonSyntaxModule = {
-		highlight: (text: string) => {
-			const highlighted = hljs.highlight('json', text).value;
-			const lines = highlighted.split('\n');
-			const numberedLines = lines.map((line, index) => `<span class="line">${index + 1}</span>${line}`).join('\n');
-			return `<pre><code class="hljs">${numberedLines}</code></pre>`;
-		}
-	};
-
 	import { onMount } from 'svelte';
 
 	onMount(() => {
@@ -31,7 +22,7 @@
 			debug: 'info',
 			modules: {
 				toolbar: [['code-block']],
-				syntax: jsonSyntaxModule
+				syntax: { hljs }
 			},
 			theme: 'snow'
 		};
@@ -90,9 +81,7 @@
 			</select>
 		</div>
 		<TabGroup>
-			<Tab bind:group={current_tab} name="tab1" value={0}>
-				Body
-			</Tab>
+			<Tab bind:group={current_tab} name="tab1" value={0}>Body</Tab>
 			<Tab bind:group={current_tab} name="tab2" value={1}>Parameters</Tab>
 			<Tab bind:group={current_tab} name="tab3" value={2}>Headers</Tab>
 			<svelte:fragment slot="panel">
