@@ -8,11 +8,14 @@ use std::time::SystemTime;
 use crate::model::{AddCollectionRequest, Collection, HistoricRequest, History, Request, Requests};
 use crate::Response;
 
-pub fn get_history() -> History {
+fn get_history_path() -> PathBuf {
     let mut path: PathBuf = get_pigeon_path();
     path.push("history.pigeon");
+    return path;
+}
 
-    fs::read(&path)
+pub fn get_history() -> History {
+    fs::read(&get_history_path())
         .map_or(History { requests: Vec::new() },
                 |history_as_bytes: Vec<u8>| {
                     let mut history: History = serde_json::from_str(&*String::from_utf8(history_as_bytes).unwrap()).unwrap();
@@ -21,38 +24,31 @@ pub fn get_history() -> History {
                 })
 }
 
-fn build_historic_request(request: Request, response: &Response) -> HistoricRequest {
+fn build_historic_request(request: &Request, response: &Response) -> HistoricRequest {
     return HistoricRequest {
         time: SystemTime::now(),
-        url: request.url,
-        method: request.method,
+        url: request.url.clone(),
+        method: request.method.clone(),
         response_status: response.status,
-        size: (&*response.size).parse().unwrap(),
+        size: response.size.clone(),
         speed: response.elapsed,
     };
 }
 
 pub fn add_history(request: Request, response: &Response) {
-    let mut path: PathBuf = get_pigeon_path();
-    path.push("history.pigeon");
-
-    let historic_request: HistoricRequest = build_historic_request(request, response);
-
-    let result = fs::read(&path);
-    if result.is_err() {
-        let mut requests: Vec<HistoricRequest> = Vec::new();
-        requests.push(historic_request);
-        let history: History = History {
-            requests
-        };
-        let req: String = serde_json::to_string(&history).unwrap();
-        fs::write(&path, req).expect("Failed to create 'History.pigeon' file");
-    } else {
-        let req = String::from_utf8(result.unwrap()).expect("Invalid History Contents - Failure converting to String");
-        let mut history: History = serde_json::from_str(&req).expect("Invalid History Contents");
-        history.requests.push(historic_request);
-        fs::write(&path, serde_json::to_string(&history).unwrap()).expect("Failed to write updated history");
-    }
+    let history_path: PathBuf = get_history_path();
+    fs::write(&history_path, serde_json::to_string(&fs::read(&history_path)
+        .map_or(History {
+            requests: {
+                let mut requests: Vec<HistoricRequest> = Vec::new();
+                requests.push(build_historic_request(&request, response));
+                requests
+            }
+        }, |item: Vec<u8>| {
+            let mut history: History = serde_json::from_str(&*String::from_utf8(item).unwrap()).unwrap();
+            history.requests.push(build_historic_request(&request, response));
+            return history;
+        })).unwrap()).unwrap();
 }
 
 pub fn delete_collection(collection_name: String) {
@@ -70,9 +66,7 @@ pub fn add_request(request: Request) {
     let mut file: String = request.name.clone();
     file.push_str(&pigeon_ext);
     path.push(file);
-
-    let contents: String = serde_json::to_string(&request).unwrap();
-    fs::write(&path, contents).unwrap()
+    fs::write(&path, serde_json::to_string(&request).unwrap()).unwrap()
 }
 
 pub fn add_collection(add_collection_request: AddCollectionRequest) -> bool {
