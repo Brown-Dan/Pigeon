@@ -34,7 +34,7 @@
 {#if $modalStore[0]}
 	<div class="modal-example-fullscreen bg-surface-100-800-token w-screen h-screen p-4 flex justify-center items-center">
 		<div class="flex flex-col items-center space-y-4">
-			<h2 class="h2">Models History</h2>
+			<h2 class="h2">Request History</h2>
 
 
 			<div class="table-container">
