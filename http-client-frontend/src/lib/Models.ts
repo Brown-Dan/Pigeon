@@ -73,7 +73,6 @@ export function get_scratchpad(): Request {
 }
 
 export function duration_to_string(duration: Duration): string {
-	console.log(duration, 'duration');
 	if (duration.nanos > 1000000000) {
 		return duration + 's';
 	} else {

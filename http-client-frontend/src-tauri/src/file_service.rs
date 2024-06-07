@@ -7,7 +7,7 @@ use std::time::{Duration, SystemTime};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{Header, QueryParam, Response};
+use crate::{Header, QueryParam, RequestMethod, Response};
 
 #[derive(Serialize, Deserialize)]
 pub struct AddCollectionRequest {
@@ -26,7 +26,7 @@ struct Collection {
 pub struct Request {
     pub(crate) name: String,
     pub(crate) url: String,
-    pub(crate) method: String,
+    pub(crate) method: RequestMethod,
     pub(crate) collection_name: String,
     pub(crate) headers: Vec<Header>, 
     pub(crate) query_params: Vec<QueryParam>
@@ -47,7 +47,7 @@ pub struct History {
 pub struct HistoricRequest {
     pub(crate) time: SystemTime,
     pub(crate) url: String,
-    pub(crate) method: String,
+    pub(crate) method: RequestMethod,
     pub(crate) response_status: u16,
     pub(crate) size: String,
     pub(crate) speed: Duration,

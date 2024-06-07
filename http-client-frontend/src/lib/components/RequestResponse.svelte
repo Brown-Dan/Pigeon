@@ -72,12 +72,12 @@
 	<div class="mt-16">
 		<div class="input-group input-group-divider grid-cols-[1fr_auto] mb-5">
 			<input bind:value={request.url} type="text" placeholder="https://example.com/" id="url" />
-			<select id="method">
-				<option value="1">GET</option>
-				<option value="2">PUT</option>
-				<option value="3">PATCH</option>
-				<option value="4">DELETE</option>
-				<option value="5">POST</option>
+			<select bind:value={request.method} id="method">
+				<option value="GET">GET</option>
+				<option value="PUT">PUT</option>
+				<option value="PATCH">PATCH</option>
+				<option value="DELETE">DELETE</option>
+				<option value="POST">POST</option>
 			</select>
 		</div>
 		<TabGroup>

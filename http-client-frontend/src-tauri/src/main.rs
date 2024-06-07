@@ -38,6 +38,15 @@ pub struct Header {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+enum RequestMethod {
+    GET,
+    POST,
+    PATCH,
+    DELETE,
+    PUT,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct QueryParam {
     name: String,
     value: String,
@@ -52,7 +61,7 @@ fn vector_to_query_params(query_params: &Vec<QueryParam>) -> HashMap<&String, &S
         }
     }
     return query_params_map;
- }
+}
 
 fn vector_to_header_map(headers: &Vec<Header>) -> HeaderMap {
     let mut header_map = HeaderMap::new();
@@ -69,7 +78,6 @@ fn vector_to_header_map(headers: &Vec<Header>) -> HeaderMap {
 #[tauri::command]
 async fn send_request(request: Request) -> String {
     let now = Instant::now();
-    // TODO query params
     let response = reqwest::Client::new()
         .get(&request.url)
         .query(&vector_to_query_params(&request.query_params))
@@ -104,10 +112,10 @@ async fn send_request(request: Request) -> String {
     let historic_request: Request = Request {
         name: String::from("_"),
         url: request.url,
-        method: "GET".parse().unwrap(),
+        method: request.method,
         collection_name: String::from("_"),
         headers: request.headers,
-        query_params: request.query_params
+        query_params: request.query_params,
     };
     file_service::add_history(historic_request, &my_response);
 
