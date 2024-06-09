@@ -44,6 +44,7 @@
 	function update_request() {
 		requests.subscribe(value => {
 			value.orphaned_requests.forEach(r => invoke('add_request', { request: r }));
+			value.collections.forEach(c => c.requests.forEach(r => invoke('add_request', {request: r})))
 		});
 	}
 
@@ -54,10 +55,11 @@
 			.then(value => {
 				if (typeof value === 'string') {
 					let json: any = JSON.parse(value);
+					console.log(json.body)
 					response = {
 						status: json.status,
 						size: json.size,
-						body: JSON.stringify(json.body),
+						body: JSON.stringify(JSON.parse(json.body), null, 2),
 						headers: json.headers,
 						elapsed: json.elapsed
 					};

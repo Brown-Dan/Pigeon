@@ -17,7 +17,7 @@
 	<div>
 		<span class="badge variant-filled">{response.status} {getMessageForStatus.get(response.status.toString())}</span>
 		<span class="badge variant-filled">{duration_to_string(response.elapsed)}</span>
-		<span class="badge variant-filled">{(new TextEncoder().encode(response.body)).length} B</span>
+		<span class="badge variant-filled">{(new TextEncoder().encode(JSON.parse(JSON.stringify(response.body)))).length} B</span>
 	</div>
 	<TabGroup>
 		<Tab bind:group={current_tab_index} name="tab1" value={0}>
@@ -28,9 +28,7 @@
 		<svelte:fragment slot="panel">
 			{#if current_tab_index === 0}
 				<div class="border-white min-w-screen min-h-screen text-black rounded-2xl text-wrap p-5 overflow-scroll">
-					<pre>
 						 <CodeBlock lineNumbers language="json" code={response.body}></CodeBlock>
-					</pre>
 				</div>
 			{:else if current_tab_index === 1}
 				<div class="table-container">
