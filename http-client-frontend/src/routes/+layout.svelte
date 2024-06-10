@@ -1,27 +1,11 @@
 <script lang="ts">
 	import '../app.postcss';
 	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
-	import type { PopupSettings } from '@skeletonlabs/skeleton';
-	import {
-		AppBar,
-		getModalStore,
-		initializeStores,
-		Modal,
-		type ModalComponent,
-		type ModalSettings,
-		popup,
-		storePopup,
-		Toast,
-		TreeView,
-		TreeViewItem
-	} from '@skeletonlabs/skeleton';
+	import { initializeStores, storePopup, Toast } from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
-	import type { Request, Requests } from '$lib/Models';
-	import HistoryModal from '$lib/components/modals/HistoryModal.svelte';
-	import AddCollectionModal from '$lib/components/modals/AddCollectionModal.svelte';
+	import type { Requests } from '$lib/Models';
 	import { requests } from '$lib/RequestsStore';
 	import { onMount } from 'svelte';
-	import AddRequestModal from '$lib/components/modals/AddRequestModal.svelte';
 	import Header from '$lib/components/Header.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
 
@@ -47,9 +31,11 @@
 
 <Toast />
 <Header />
-<div class="grid grid-cols-10 gap-2 h-screen overflow-y-auto">
-	<Sidebar {requests_result}/>
-	<div class="col-span-8 min-h-max overflow-y-auto">
+<div class="grid grid-cols-10 gap-2 h-screen overflow-hidden">
+	<div class="col-span-2 overflow-y-auto h-screen overscroll-none">
+		<Sidebar {requests_result} />
+	</div>
+	<div class="col-span-8 overflow-y-auto h-screen overscroll-none">
 		<slot />
 	</div>
 </div>

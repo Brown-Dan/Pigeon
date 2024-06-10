@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
-	import { Modal, type PopupSettings } from '@skeletonlabs/skeleton';
 	import {
 		getModalStore,
 		initializeStores,
+		Modal,
 		type ModalComponent,
 		type ModalSettings,
 		popup,
+		type PopupSettings,
 		storePopup,
 		TreeView,
 		TreeViewItem
@@ -90,8 +91,8 @@
 	<div class="arrow bg-surface-100-800-token" />
 </div>
 
-<div class="col-span-2 text-left overflow-x-hidden">
-	<select class="select mt-5 ml-3 p-2 text-xs" id="method">
+<div class="overflow-hidden">
+	<select class="select mr-5 mt-5 ml-3 p-2 text-xs variant-filled hidden lg:inline-block" id="method">
 		<option value="GET">LOCAL</option>
 		<option value="PUT">PREPROD</option>
 		<option value="PATCH">PROD</option>
@@ -130,6 +131,8 @@
 			</svg>
 		</button>
 	</div>
+</div>
+<div class="overflow-y-auto overscroll-none mb-5">
 	{#if requests_result}
 		<TreeView class="hidden lg:block text-xs">
 			{#each requests_result.collections as collection}
@@ -144,8 +147,10 @@
                     }}
 							use:popup={collectionSettingsPopup}
 						>
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+									 stroke="currentColor" class="w-4 h-4">
+								<path stroke-linecap="round" stroke-linejoin="round"
+											d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
 							</svg>
 						</button>
 					</div>
@@ -165,8 +170,10 @@
                                 }}
 										use:popup={collectionSettingsPopup}
 									>
-										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-											<path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+												 stroke="currentColor" class="w-4 h-4">
+											<path stroke-linecap="round" stroke-linejoin="round"
+														d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
 										</svg>
 									</button>
 								</div>
@@ -190,15 +197,15 @@
                     }}
 							use:popup={collectionSettingsPopup}
 						>
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+									 stroke="currentColor" class="w-4 h-4">
+								<path stroke-linecap="round" stroke-linejoin="round"
+											d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
 							</svg>
 						</button>
 					</div>
 				</TreeViewItem>
 			{/each}
 		</TreeView>
-
-
 	{/if}
 </div>

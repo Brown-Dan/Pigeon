@@ -1,11 +1,12 @@
 <script lang="ts">
-	import type { ModalSettings } from '@skeletonlabs/skeleton';
 	import {
 		AppBar,
 		getModalStore,
 		initializeStores,
 		Modal,
 		type ModalComponent,
+		type ModalSettings,
+		SlideToggle,
 		storePopup
 	} from '@skeletonlabs/skeleton';
 	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
@@ -25,6 +26,21 @@
 		type: 'component',
 		component: 'historyModal'
 	};
+
+	let value: boolean = true;
+
+	function switch_theme() {
+
+		let html: HTMLElement | null = document.getElementsByTagName('html')[0];
+		if (html) {
+			if (value) {
+				html.className = 'dark overflow-hidden';
+			} else {
+				html.className = 'overflow-hidden'
+			}
+		}
+	}
+
 </script>
 <Modal components={modalRegistry} />
 
@@ -35,6 +51,7 @@
 	</svelte:fragment>
 	Pigeon
 	<svelte:fragment slot="trail">
+		<SlideToggle name="slide" bind:checked={value} on:change={switch_theme} />
 		<div class="btn-group variant-filled">
 			<button type="button" class="btn-sm variant-filled">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
