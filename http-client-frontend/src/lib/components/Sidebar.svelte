@@ -66,6 +66,7 @@
 					value.collections = value.collections.filter(collection => collection.name !== selected_collection);
 					return value;
 				});
+				window.dispatchEvent(new CustomEvent('deletedCollection', { detail: selected_collection}))
 			}
 		}
 	};
@@ -73,7 +74,6 @@
 	function open_request_tab(request: Request) {
 		window.dispatchEvent(new CustomEvent('requestBarClick', { detail: request }));
 	}
-
 
 	async function delete_collection() {
 		collectionSettingsPopup.closeQuery;
