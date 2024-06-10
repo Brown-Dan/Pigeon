@@ -15,8 +15,8 @@ export const method_to_abb: Map<string, string> = new Map([
 ])
 
 export function limit_request_chars(name: string): string {
-	if (name.length > 15) {
-		return name.substring(0, 12) + "...";
+	if (name.length > 16) {
+		return name.substring(0, 16).trimEnd() + "...";
 	}
 	return name;
 }

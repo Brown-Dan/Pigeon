@@ -124,74 +124,81 @@
 			</svg>
 		</button>
 	</div>
-
 </div>
-<div class="overflow-y-auto overscroll-none mb-5 overflow-x-hidden ml-0">
+<div class="overflow-y-auto overscroll-none mb-5 overflow-x-hidden">
 	{#if requests_result}
 		<TreeView class="hidden lg:block text-xs">
-			<div class="flex items-center justify-between">
-				{#each requests_result.collections as collection}
-					<div class="max-w-28">
-						<TreeViewItem class="my-0.5">
-							<div class="items-center">
-								<span class="whitespace-nowrap overflow-hidden text-xs">{collection.name}</span>
-							</div>
-							<svelte:fragment slot="children">
-								<div>
-									{#each collection.requests as request}
-										<div class="flex items-center justify-between">
-											<div class="flex-grow">
-												<TreeViewItem class="my-0.5" on:click={() => open_request_tab(request)}>
-													<div class="flex items-center">
-														<button
-															class="p-1 flex items-center justify-center"
-															on:click={() => {selected_collection = request.name}}
-															use:popup={collectionSettingsPopup}
-														>
-															<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-																	 stroke="currentColor" class="w-4 h-4">
-																<path stroke-linecap="round" stroke-linejoin="round"
-																			d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-															</svg>
-														</button>
-														<span class="ml-1 badge {method_to_colour.get(request.method)} mr-2 text-xs">{method_to_abb.get(request.method)}</span>
-														<span class="overflow-hidden whitespace-nowrap text-xs">{limit_request_chars(request.name)}</span>
-													</div>
-												</TreeViewItem>
-											</div>
-										</div>
-									{/each}
-								</div>
-							</svelte:fragment>
-						</TreeViewItem>
-					</div>
-				{/each}
-			</div>
-			<div>
-				{#each requests_result.orphaned_requests as request}
+			{#each requests_result.collections as collection}
+				<TreeViewItem class="my-0.5">
 					<div class="flex items-center justify-between">
-						<div class="flex-grow">
+						<span class="flex items-center whitespace-nowrap overflow-hidden text-sm">{collection.name}</span>
+						<button
+							class="ml-1 p-1 flex items-center justify-center"
+							on:click={(event) => {
+                        event.stopPropagation();
+                        selected_collection = collection.name;
+                    }}
+							use:popup={collectionSettingsPopup}
+						>
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+									 stroke="currentColor" class="w-5 h-5">
+								<path stroke-linecap="round" stroke-linejoin="round"
+											d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+							</svg>
+						</button>
+					</div>
+					<svelte:fragment slot="children">
+						{#each collection.requests as request}
 							<TreeViewItem class="my-0.5" on:click={() => open_request_tab(request)}>
-								<div class="flex items-center">
+								<div class="flex items-center justify-between">
 									<button
 										class="p-1 flex items-center justify-center"
-										on:click={() => {selected_collection = request.name}}
+										on:click={(event) => {
+                                    event.stopPropagation();
+                                    selected_collection = request.collection_name;
+                                }}
 										use:popup={collectionSettingsPopup}
 									>
-										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-												 stroke="currentColor" class="w-4 h-4">
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+												 stroke="currentColor" class="w-5 h-5">
 											<path stroke-linecap="round" stroke-linejoin="round"
 														d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
 										</svg>
 									</button>
-									<span class="ml-1 badge {method_to_colour.get(request.method)} mr-2 text-xs">{method_to_abb.get(request.method)}</span>
-									<span class="overflow-hidden whitespace-nowrap text-xs">{request.name}</span>
+									<div class="flex items-center">
+										<span class="ml-1 badge variant-filled-success mr-2 text-xs">{request.method}</span>
+										<span class="overflow-hidden whitespace-nowrap text-sm">{limit_request_chars(request.name)}</span>
+									</div>
 								</div>
 							</TreeViewItem>
+						{/each}
+					</svelte:fragment>
+				</TreeViewItem>
+			{/each}
+			{#each requests_result.orphaned_requests as request}
+				<TreeViewItem class="my-0.5" on:click={() => open_request_tab(request)}>
+					<div class="flex items-center justify-between">
+						<button
+							class="p-1 flex items-center justify-center"
+							on:click={(event) => {
+                        event.stopPropagation();
+                        selected_collection = request.collection_name;
+                    }}
+							use:popup={collectionSettingsPopup}
+						>
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+									 stroke="currentColor" class="w-5 h-5">
+								<path stroke-linecap="round" stroke-linejoin="round"
+											d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+							</svg>
+						</button>
+						<div class="flex items-center">
+							<span class="ml-1 badge {method_to_colour.get(request.method)} mr-2 text-xs">{method_to_abb.get(request.method)}</span>
+							<span class="overflow-hidden whitespace-nowrap text-sm">{limit_request_chars(request.name)}</span>
 						</div>
 					</div>
-				{/each}
-			</div>
+				</TreeViewItem>
+			{/each}
 		</TreeView>
 	{/if}
 </div>
