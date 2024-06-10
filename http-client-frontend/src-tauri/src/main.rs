@@ -6,7 +6,7 @@ use std::str::FromStr;
 use std::time::Instant;
 
 use reqwest;
-use reqwest::header::{HeaderMap, HeaderName, HeaderValue, InvalidHeaderName};
+use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 
 use crate::model::{AddCollectionRequest, Header, History, QueryParam, Request, Requests, Response};
 
@@ -22,13 +22,18 @@ fn main() {
 }
 
 fn map_query_param_vec_to_hashmap(query_params: &Vec<QueryParam>) -> HashMap<&String, &String> {
-    return query_params.iter().map( |item: &QueryParam|  (&item.name, &item.value) ).collect();
+    return query_params.iter().filter_map(|item: &QueryParam| {
+        match item.enabled {
+            true => Some((&item.name, &item.value)),
+            false => None
+        }
+    }).collect();
 }
 
 fn map_header_vec_to_hashmap(headers: &Vec<Header>) -> HeaderMap {
     headers.iter().filter_map(|item: &Header| {
         match item.enabled {
-            true => Some((HeaderName::from_str(&item.name).unwrap(),  HeaderValue::from_str(&*item.value).unwrap())),
+            true => Some((HeaderName::from_str(&item.name).unwrap(), HeaderValue::from_str(&*item.value).unwrap())),
             false => None
         }
     }).collect()
