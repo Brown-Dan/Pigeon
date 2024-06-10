@@ -13,6 +13,7 @@ use crate::model::{AddCollectionRequest, Header, History, QueryParam, Request, R
 mod file_service;
 mod request_service;
 mod model;
+mod request_service_test;
 
 fn main() {
     tauri::Builder::default()
