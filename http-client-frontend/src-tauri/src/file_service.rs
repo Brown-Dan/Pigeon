@@ -54,6 +54,7 @@ pub fn add_history(request: Request, response: &Response) {
 pub fn delete_collection(collection_name: String) {
     let mut path: PathBuf = get_pigeon_path();
     path.push(&collection_name);
+    println!("{:?}", path);
     fs::remove_dir_all(path).unwrap()
 }
 
