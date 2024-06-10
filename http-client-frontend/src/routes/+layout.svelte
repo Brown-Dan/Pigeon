@@ -103,8 +103,7 @@
 
 </script>
 
-<div class="card w-48 shadow-xl py-2 text-center" data-popup="collectionSettingsPopup">
-
+<div class="z-50 card w-48 shadow-xl py-2 text-center" data-popup="collectionSettingsPopup">
 	<div class="btn-group-vertical min-w-full">
 		<button on:click={add_request}>Add Request</button>
 		<button>Environments</button>
@@ -112,6 +111,7 @@
 	</div>
 	<div class="arrow bg-surface-100-800-token" />
 </div>
+
 
 <Toast />
 <Modal components={modalRegistry} />
@@ -201,18 +201,30 @@
 			<TreeView class="hidden lg:block">
 				{#each requests_result.collections as collection}
 					<TreeViewItem>
-						{collection.name}
-						<button on:click={() => selected_collection = collection.name} use:popup={collectionSettingsPopup}>
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-									 stroke="currentColor" class="size-6 inline-block mb-0.5">
-								<path stroke-linecap="round" stroke-linejoin="round"
-											d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-							</svg>
-						</button>
+						<div class="flex items-center justify-between">
+                <span class="flex items-center">
+                    {collection.name}
+                </span>
+							<button
+								class="ml-2 p-2 flex items-center justify-center"
+								on:click={(event) => {
+                        event.stopPropagation();
+                        selected_collection = collection.name;
+                    }}
+								use:popup={collectionSettingsPopup}
+							>
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+								</svg>
+							</button>
+						</div>
 						<svelte:fragment slot="children">
 							{#each collection.requests as request}
 								<TreeViewItem on:click={() => open_request_tab(request)}>
-									{request.name}<span class="ml-4 badge variant-filled-success">{request.method}</span>
+									<div class="flex items-center justify-between">
+										<span>{request.name}</span>
+										<span class="ml-2 badge variant-filled-success">{request.method}</span>
+									</div>
 								</TreeViewItem>
 							{/each}
 						</svelte:fragment>
@@ -220,7 +232,10 @@
 				{/each}
 				{#each requests_result.orphaned_requests as request}
 					<TreeViewItem on:click={() => open_request_tab(request)}>
-						{request.name}<span class="ml-4 badge variant-filled-warning">{request.method}</span>
+						<div class="flex items-center justify-between">
+							<span>{request.name}</span>
+							<span class="ml-2 badge variant-filled-warning">{request.method}</span>
+						</div>
 					</TreeViewItem>
 				{/each}
 			</TreeView>
