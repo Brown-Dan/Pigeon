@@ -22,15 +22,7 @@
 	<button type="button" class=" btn-sm" on:click={add_header}>Add</button>
 	<button type="button" class=" btn-sm" on:click={delete_headers}>Delete All</button>
 </div>
-<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-3">
-	<input class="text-xs pl-3" type="text" placeholder="name" disabled value="Accept" />
-	<input class="text-xs pl-3" type="text" placeholder="value" id="accept" value="*/*" />
-</div>
-<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-4">
-	<input class="text-xs pl-3" type="text" placeholder="name" disabled value="Host" />
-	<input class="text-xs pl-3" type="text" placeholder="value" id="host" disabled value="<calculated at runtime>" />
-</div>
-{#each request.headers.filter(h => h.name !== "Accept" && h.name !== "Host") as header, index}
+{#each request.headers as header, index}
 	<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-4">
 		<input class="p-0 text-xs m-0 font-semibold pl-3" bind:value={header.name} type="text" placeholder="name" disabled={!header.enabled} />
 		<input class="p-0 text-xs m-0 font-semibold pl-3" bind:value={header.value} type="text" placeholder="value" disabled={!header.enabled} />

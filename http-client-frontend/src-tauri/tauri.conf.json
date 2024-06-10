@@ -7,7 +7,7 @@
     "distDir": "../public"
   },
   "package": {
-    "productName": "http-client-tauri",
+    "productName": "Pigeon",
     "version": "0.1.0"
   },
   "tauri": {
