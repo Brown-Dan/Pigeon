@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getMessageForStatus } from '$lib/StatusUtils';
+	import { get_status_colour, getMessageForStatus } from '$lib/StatusUtils';
 	import { clipboard, CodeBlock, storeHighlightJs, Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import hljs from 'highlight.js/lib/core';
 	import json from 'highlight.js/lib/languages/json';
@@ -15,7 +15,7 @@
 </script>
 <div class="m-5">
 	<div>
-		<span class="badge variant-filled">{response.status} {getMessageForStatus.get(response.status.toString())}</span>
+		<span class="badge {get_status_colour(parseInt(response.status))}">{response.status} {getMessageForStatus.get(response.status.toString())}</span>
 		<span class="badge variant-filled">{duration_to_string(response.elapsed)}</span>
 		<span class="badge variant-filled">{(new TextEncoder().encode(JSON.parse(JSON.stringify(response.body)))).length} B</span>
 	</div>

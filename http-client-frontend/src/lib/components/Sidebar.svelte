@@ -17,6 +17,7 @@
 	import AddCollectionModal from '$lib/components/modals/AddCollectionModal.svelte';
 	import { requests } from '$lib/RequestsStore';
 	import AddRequestModal from '$lib/components/modals/AddRequestModal.svelte';
+	import { method_to_colour } from '$lib/MethodUtils';
 
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -159,7 +160,7 @@
 							<TreeViewItem class="my-0.5" on:click={() => open_request_tab(request)}>
 								<div class="flex items-center justify-between">
 									<div class="flex items-center">
-										<span class="ml-1 badge variant-filled-success mr-2 text-xs">{request.method}</span>
+										<span class="ml-1 badge {method_to_colour.get(request.method)} mr-2 text-xs">{request.method}</span>
 										<span class="overflow-hidden whitespace-nowrap text-sm">{request.name}</span>
 									</div>
 									<button
@@ -186,7 +187,7 @@
 				<TreeViewItem class="my-0.5" on:click={() => open_request_tab(request)}>
 					<div class="flex items-center justify-between">
 						<div class="flex items-center">
-							<span class="ml-1 badge variant-filled-success mr-2 text-xs">{request.method}</span>
+							<span class="ml-1 badge {method_to_colour.get(request.method)} mr-2 text-xs">{request.method}</span>
 							<span class="overflow-hidden whitespace-nowrap text-sm">{request.name}</span>
 						</div>
 						<button
