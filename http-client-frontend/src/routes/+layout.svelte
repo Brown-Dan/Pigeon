@@ -32,7 +32,7 @@
 <Toast />
 <Header />
 <div class="grid grid-cols-10 gap-2 h-screen overflow-hidden">
-	<div class="col-span-2 overflow-y-auto h-screen overscroll-none">
+	<div class="col-span-2 overflow-hidden h-screen overscroll-none">
 		<Sidebar {requests_result} />
 	</div>
 	<div class="col-span-8 overflow-y-auto h-screen overscroll-none">

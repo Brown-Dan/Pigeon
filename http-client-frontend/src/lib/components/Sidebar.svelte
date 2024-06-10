@@ -132,7 +132,7 @@
 		</button>
 	</div>
 </div>
-<div class="overflow-y-auto overscroll-none mb-5">
+<div class="overflow-y-auto overscroll-none mb-5 overflow-x-hidden">
 	{#if requests_result}
 		<TreeView class="hidden lg:block text-xs">
 			{#each requests_result.collections as collection}
