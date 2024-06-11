@@ -23,26 +23,24 @@
 			minHeight: '150px'
 		},
 		'&': {
-			color: '#E0E0E0', // White
-			backgroundColor: '#263238' // Cool Dark Gray
+			color: '#E0E0E0',
+			backgroundColor: '#263238'
 		},
 		'.cm-content': {
-			caretColor: '#FFCC80' // Light Orange
+			caretColor: '#FFCC80'
 		},
 		'&.cm-focused .cm-cursor': {
-			borderLeftColor: '#FFCC80' // Light Orange
+			borderLeftColor: '#FFCC80'
 		},
 		'&.cm-focused .cm-selectionBackground, ::selection': {
-			backgroundColor: '#546E7A' // Dark Gray
+			backgroundColor: '#546E7A'
 		},
 		'.cm-gutters': {
-			backgroundColor: '#37474F', // Darker Gray
-			color: '#B0BEC5', // Light Gray
+			backgroundColor: '#37474F',
+			color: '#B0BEC5',
 			border: 'none'
 		}
 	}, { dark: true });
-
-
 	let editor: EditorView;
 	let startState = EditorState.create({
 		doc: request.body.content,
@@ -55,7 +53,6 @@
 			myTheme
 		]
 	});
-
 	onMount(() => {
 		editor = new EditorView({
 			state: startState,
