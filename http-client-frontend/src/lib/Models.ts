@@ -5,6 +5,7 @@ export interface Request {
 	collection_name: string;
 	headers: Header[];
 	query_params: QueryParam[];
+	body: string;
 }
 
 export interface QueryParam {
@@ -69,7 +70,8 @@ export function get_scratchpad(): Request {
 		method: "GET",
 		collection_name: "scratchpad",
 		headers: [],
-		query_params: []
+		query_params: [],
+		body: "{}"
 	};
 }
 

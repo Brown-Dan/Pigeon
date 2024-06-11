@@ -9,63 +9,60 @@
 	import 'highlight.js/styles/srcery.css';
 	import UrlMethodInput from '$lib/components/UrlMethodInput.svelte';
 	import { basicSetup, EditorView } from 'codemirror';
-	import {EditorState} from '@codemirror/state';
+	import { EditorState } from '@codemirror/state';
 	import { keymap, lineNumbers } from '@codemirror/view';
 	import { json, jsonParseLinter } from '@codemirror/lang-json';
 	import { indentWithTab } from '@codemirror/commands';
 	import { onMount } from 'svelte';
-	import { linter, lintKeymap, lintGutter } from '@codemirror/lint'
+	import { linter, lintGutter } from '@codemirror/lint';
 
 	let myTheme = EditorView.theme({
-		".cm-content .cm-gutter .cm-wrap": {
-			minHeight: "150px"
-			},
-	"&": {
-			color: "white",
-			backgroundColor: "#034"
+		'.cm-content .cm-gutter .cm-wrap': {
+			minHeight: '150px'
 		},
-		".cm-content": {
-			caretColor: "#0e9"
+		'&': {
+			color: 'white',
+			backgroundColor: '#034'
 		},
-		"&.cm-focused .cm-cursor": {
-			borderLeftColor: "#0e9"
+		'.cm-content': {
+			caretColor: '#0e9'
 		},
-		"&.cm-focused .cm-selectionBackground, ::selection": {
-			backgroundColor: "#074"
+		'&.cm-focused .cm-cursor': {
+			borderLeftColor: '#0e9'
 		},
-		".cm-gutters": {
-			backgroundColor: "#045",
-			color: "#ddd",
-			border: "none"
+		'&.cm-focused .cm-selectionBackground, ::selection': {
+			backgroundColor: '#074'
+		},
+		'.cm-gutters': {
+			backgroundColor: '#045',
+			color: '#ddd',
+			border: 'none'
 		}
-	}, {dark: true})
-
-	let json_default =
-		`
-		{
-
-		}
-	`
-
-	onMount(() => {
-		new EditorView({
-			value: json_default,
-			extensions: [keymap.of([indentWithTab]),],
-			parent: document.querySelector('#body'),
-			state: EditorState.create({
-				extensions: [
-					keymap.of([indentWithTab]),
-					json(),
-					lintGutter(),
-					linter(jsonParseLinter()),
-					lineNumbers(),
-					myTheme
-				]
-			})
-		});
-	});
+	}, { dark: true });
 
 	export let request: Request;
+
+	let editor: EditorView;
+	let startState = EditorState.create({
+		doc: request.body,
+		extensions: [
+			keymap.of([indentWithTab]),
+			json(),
+			lintGutter(),
+			linter(jsonParseLinter()),
+			lineNumbers(),
+			myTheme
+		]
+	});
+
+	onMount(() => {
+		editor = new EditorView({
+			state: startState,
+			value: request.body,
+			extensions: [basicSetup, keymap.of([indentWithTab])],
+			parent: document.querySelector('#body')
+		});
+	});
 
 	const toastStore = getToastStore();
 	const request_success: ToastSettings = {
@@ -96,6 +93,7 @@
 
 	function send_request() {
 		pending_request = true;
+		request.body = editor.state.doc.toString();
 		update_request();
 		invoke('send_request', { request: request })
 			.then(value => {
@@ -119,12 +117,14 @@
 				}
 			});
 	}
-
 </script>
 
 <div class="grid grid-cols-10 min-h-max m-5">
 	<div class="mt-16 col-span-4">
 		<UrlMethodInput {request} />
+		<div>
+			{request.name}
+		</div>
 		<TabGroup>
 			<Tab bind:group={current_tab} name="tab1" value={0}>Body</Tab>
 			<Tab bind:group={current_tab} name="tab2" value={1}>Parameters</Tab>

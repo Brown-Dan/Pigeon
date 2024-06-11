@@ -8,7 +8,8 @@ pub struct Request {
     pub(crate) method: RequestMethod,
     pub(crate) collection_name: String,
     pub(crate) headers: Vec<Header>,
-    pub(crate) query_params: Vec<QueryParam>
+    pub(crate) query_params: Vec<QueryParam>, 
+    pub(crate) body: String
 }
 
 #[derive(Serialize, Deserialize)]

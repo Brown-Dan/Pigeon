@@ -43,6 +43,7 @@ fn map_header_vec_to_hashmap(headers: &Vec<Header>) -> HeaderMap {
 
 #[tauri::command]
 async fn send_request(request: Request) -> String {
+    println!("{}", request.body);
     let now = Instant::now();
     let response = reqwest::Client::new()
         .get(&request.url)
@@ -88,6 +89,7 @@ async fn send_request(request: Request) -> String {
         collection_name: String::from("_"),
         headers: request.headers,
         query_params: request.query_params,
+        body: request.body
     };
     file_service::add_history(historic_request, &my_response);
 
