@@ -10,7 +10,7 @@
 	import UrlMethodInput from '$lib/components/UrlMethodInput.svelte';
 	import { basicSetup, EditorView } from 'codemirror';
 	import { EditorState } from '@codemirror/state';
-	import { keymap, lineNumbers } from '@codemirror/view';
+	import { keymap, lineNumbers, GutterMarker, gutter } from '@codemirror/view';
 	import { json, jsonParseLinter } from '@codemirror/lang-json';
 	import { indentWithTab } from '@codemirror/commands';
 	import { onMount } from 'svelte';
@@ -23,24 +23,25 @@
 			minHeight: '150px'
 		},
 		'&': {
-			color: 'white',
-			backgroundColor: '#034'
+			color: '#E0E0E0', // White
+			backgroundColor: '#263238' // Cool Dark Gray
 		},
 		'.cm-content': {
-			caretColor: '#0e9'
+			caretColor: '#FFCC80' // Light Orange
 		},
 		'&.cm-focused .cm-cursor': {
-			borderLeftColor: '#0e9'
+			borderLeftColor: '#FFCC80' // Light Orange
 		},
 		'&.cm-focused .cm-selectionBackground, ::selection': {
-			backgroundColor: '#074'
+			backgroundColor: '#546E7A' // Dark Gray
 		},
 		'.cm-gutters': {
-			backgroundColor: '#045',
-			color: '#ddd',
+			backgroundColor: '#37474F', // Darker Gray
+			color: '#B0BEC5', // Light Gray
 			border: 'none'
 		}
 	}, { dark: true });
+
 
 	let editor: EditorView;
 	let startState = EditorState.create({
@@ -92,8 +93,6 @@
 	let response: Response | undefined;
 	let current_tab: number = 0;
 	let pending_request = false;
-	let including_body = false;
-
 	function update_request() {
 		request.body.content = editor.state.doc.toString();
 		requests.subscribe(value => {
@@ -129,7 +128,7 @@
 	}
 
 	function format_body() {
-		update_request();
+		console.log(JSON.stringify(JSON.parse(editor.state.doc.toString()), null, 2));
 		try {
 			const transaction = editor.state.update({
 				changes: {
@@ -139,7 +138,9 @@
 				}
 			});
 			editor.dispatch(transaction);
+			update_request();
 		} catch (e) {
+			console.log(e)
 			cannot_format_json_error();
 		}
 	}
@@ -163,9 +164,13 @@
 			<Tab bind:group={current_tab} name="tab3" value={2}>Headers</Tab>
 			<Tab bind:group={current_tab} name="tab4" value={3}>Scripts</Tab>
 			<svelte:fragment slot="panel">
-				<SlideToggle name="slider-label" bind:checked={including_body}>Include Body</SlideToggle>
-					<div hidden={current_tab !== 0} id="body" class="mt-2 {including_body ? '' : 'hidden'}">
-						<div id="body"></div>
+				<SlideToggle name="slider-label" bind:checked={request.body.enabled}>Include Body</SlideToggle>
+					<div hidden={current_tab !== 0} id="body" class="mt-2 {request.body.enabled ? '' : 'hidden'}">
+						<div id="body">
+							<button on:click={format_body} type="button" class="btn text variant-filled px-4 py-2 bg-blue-500 text-white rounded mb-2">
+								Format JSON
+							</button>
+						</div>
 					</div>
 				<div hidden={current_tab !== 1}>
 					<QueryParamsForm {request} />
@@ -178,9 +183,6 @@
 				</div>
 			</svelte:fragment>
 		</TabGroup>
-		<button on:click={format_body} type="button" class="btn text variant-filled mt-5">
-			Format JSON
-		</button>
 		<button on:click={send_request} type="button" class="btn variant-filled mt-5 text">
 			<svg
 				class="{pending_request === false ? 'hidden' : ''}  w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
