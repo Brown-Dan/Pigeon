@@ -113,8 +113,8 @@
 			if (req_copy.collection_name === "orphan") {
 				value.orphaned_requests.push(req_copy);
 			} else {
-				let v = value.collections.map(collection => collection.name).indexOf(selected_request.collection_name, 0);
-				let c = value.collections.at(v);
+				let idx = value.collections.map(collection => collection.name).indexOf(selected_request.collection_name, 0);
+				let c = value.collections.at(idx);
 				if (c) {
 					c.requests.push(req_copy)
 				}

@@ -46,7 +46,7 @@
 		toastStore.trigger(request_failure)
 	}
 
-	let response: Response;
+	let response: Response | undefined;
 	let current_tab: number = 0;
 	let pending_request = false;
 
@@ -55,6 +55,10 @@
 			value.orphaned_requests.forEach(r => invoke('add_request', { request: r }));
 			value.collections.forEach(c => c.requests.forEach(r => invoke('add_request', { request: r })));
 		});
+	}
+
+	function reset_response() {
+		response = undefined;
 	}
 
 	function send_request() {
@@ -91,6 +95,7 @@
 			<Tab bind:group={current_tab} name="tab1" value={0}>Body</Tab>
 			<Tab bind:group={current_tab} name="tab2" value={1}>Parameters</Tab>
 			<Tab bind:group={current_tab} name="tab3" value={2}>Headers</Tab>
+			<Tab bind:group={current_tab} name="tab4" value={3}>Scripts</Tab>
 			<svelte:fragment slot="panel">
 				<div hidden={current_tab !== 0} id="body">
 					<div id="editor"></div>
@@ -100,6 +105,9 @@
 				</div>
 				<div hidden={current_tab !== 2}>
 					<HeadersForm {request} />
+				</div>
+				<div hidden={current_tab !== 4}>
+					Scripts
 				</div>
 			</svelte:fragment>
 		</TabGroup>
