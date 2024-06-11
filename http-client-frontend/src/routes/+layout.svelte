@@ -8,11 +8,8 @@
 	import { onMount } from 'svelte';
 	import Header from '$lib/components/Header.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
-
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
-
 	initializeStores();
-
 	let requests_result: Requests;
 
 	onMount(async () => {
