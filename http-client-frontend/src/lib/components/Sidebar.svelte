@@ -107,10 +107,18 @@
 
 	function clone_request() {
 		const req_copy = {...selected_request};
-		req_copy.name = req_copy.name + "clone";
+		req_copy.name = req_copy.name + " clone";
 		invoke('add_request', { request: req_copy });
 		requests.update((value) => {
-			value.orphaned_requests.push(req_copy);
+			if (req_copy.collection_name === "orphan") {
+				value.orphaned_requests.push(req_copy);
+			} else {
+				let v = value.collections.map(collection => collection.name).indexOf(selected_request.collection_name, 0);
+				let c = value.collections.at(v);
+				if (c) {
+					c.requests.push(req_copy)
+				}
+			}
 			return value;
 		})
 	}
