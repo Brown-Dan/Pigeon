@@ -29,8 +29,13 @@
 		close_tab(idx);
 	}
 
+	function handle_deleted_request(event: CustomEvent) {
+		let idx: number = request_tabs.map(r => r.name).indexOf(event.detail);
+		close_tab(idx);
+	}
+
 </script>
-<svelte:window on:requestBarClick={handleRequestBarClick} on:deletedCollection={handle_deleted_collection} />
+<svelte:window on:requestBarClick={handleRequestBarClick} on:deletedCollection={handle_deleted_collection} on:deletedRequest={handle_deleted_request} />
 <TabGroup class="mt-5"}>
 	{#each request_tabs as request, i}
 		<Tab bind:group={tabSet} name="tab{i}" value={i}>{request.name}

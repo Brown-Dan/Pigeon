@@ -58,6 +58,16 @@ pub fn delete_collection(collection_name: String) {
     fs::remove_dir_all(path).unwrap()
 }
 
+pub fn delete_request(request: Request) {
+    let mut path: PathBuf = get_pigeon_path();
+    if request.collection_name.ne("orphan") { path.push(request.collection_name) }
+    let pigeon_ext: String = String::from(".pigeon");
+    let mut file: String = request.name.clone();
+    file.push_str(&pigeon_ext);
+    path.push(file);
+    fs::remove_file(&path).unwrap();
+}
+
 pub fn add_request(request: Request) {
     let mut path: PathBuf = get_pigeon_path();
     if request.collection_name.ne("orphan") { path.push(&request.collection_name); }

@@ -17,7 +17,7 @@ mod request_service_test;
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_collections, send_request, add_collection, get_history, delete_collection, add_request])
+        .invoke_handler(tauri::generate_handler![get_collections, send_request, add_collection, get_history, delete_collection, add_request, delete_request])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -110,4 +110,9 @@ fn delete_collection(collection_name: String) {
 #[tauri::command]
 fn add_request(request: Request) {
     file_service::add_request(request);
+}
+
+#[tauri::command]
+fn delete_request(request: Request) {
+    file_service::delete_request(request);
 }
