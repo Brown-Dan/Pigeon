@@ -19,7 +19,6 @@
 
 	onMount(() => {
 		const options: QuillOptions = {
-			debug: 'info',
 			modules: {
 				toolbar: [['code-block']],
 				syntax: { hljs }

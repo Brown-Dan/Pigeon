@@ -88,14 +88,14 @@
 			if (r === true) {
 				invoke('delete_request', { request: selected_request });
 				requests.update((value) => {
-					console.log(selected_request)
 					if (selected_request.collection_name === 'orphan') {
 							value.orphaned_requests = value.orphaned_requests.filter(r => r.name !== selected_request.name);
 							return value;
 					} else {
 						let v = value.collections.map(collection => collection.name).indexOf(selected_request.collection_name, 0);
-						if (v) {
-							value.collections.at(v).requests = value.collections.at(v).requests.filter(r => r.name !== selected_request.name);
+						let c = value.collections.at(v);
+						if (c) {
+							c.requests = c.requests.filter(r => r.name !== selected_request.name);
 						}
 						return value;
 					}
