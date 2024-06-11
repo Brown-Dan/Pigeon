@@ -6,20 +6,62 @@
 	import type { Request, Response } from '$lib/Models';
 	import HeadersForm from '$lib/components/HeadersForm.svelte';
 	import QueryParamsForm from '$lib/components/QueryParamsForm.svelte';
-	import 'quill/dist/quill.snow.css';
 	import 'highlight.js/styles/srcery.css';
 	import UrlMethodInput from '$lib/components/UrlMethodInput.svelte';
 	import { basicSetup, EditorView } from 'codemirror';
-	import { keymap } from '@codemirror/view';
+	import {EditorState} from '@codemirror/state';
+	import { keymap, lineNumbers } from '@codemirror/view';
 	import { json, jsonParseLinter } from '@codemirror/lang-json';
 	import { indentWithTab } from '@codemirror/commands';
 	import { onMount } from 'svelte';
+	import { linter, lintKeymap, lintGutter } from '@codemirror/lint'
+
+	let myTheme = EditorView.theme({
+		".cm-content .cm-gutter .cm-wrap": {
+			minHeight: "150px"
+			},
+	"&": {
+			color: "white",
+			backgroundColor: "#034"
+		},
+		".cm-content": {
+			caretColor: "#0e9"
+		},
+		"&.cm-focused .cm-cursor": {
+			borderLeftColor: "#0e9"
+		},
+		"&.cm-focused .cm-selectionBackground, ::selection": {
+			backgroundColor: "#074"
+		},
+		".cm-gutters": {
+			backgroundColor: "#045",
+			color: "#ddd",
+			border: "none"
+		}
+	}, {dark: true})
+
+	let json_default =
+		`
+		{
+
+		}
+	`
 
 	onMount(() => {
 		new EditorView({
-			extensions: [basicSetup, json(), keymap.of([indentWithTab])],
+			value: json_default,
+			extensions: [keymap.of([indentWithTab]),],
 			parent: document.querySelector('#body'),
-			linter: jsonParseLinter()
+			state: EditorState.create({
+				extensions: [
+					keymap.of([indentWithTab]),
+					json(),
+					lintGutter(),
+					linter(jsonParseLinter()),
+					lineNumbers(),
+					myTheme
+				]
+			})
 		});
 	});
 
@@ -50,10 +92,6 @@
 			value.orphaned_requests.forEach(r => invoke('add_request', { request: r }));
 			value.collections.forEach(c => c.requests.forEach(r => invoke('add_request', { request: r })));
 		});
-	}
-
-	function reset_response() {
-		response = undefined;
 	}
 
 	function send_request() {
