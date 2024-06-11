@@ -11,13 +11,21 @@
 
 	export let response: Response;
 
+	let response_format: string = "json";
 	let current_tab_index: number = 0;
 </script>
 <div class="m-5">
 	<div>
-		<span class="badge {get_status_colour(parseInt(response.status))}">{response.status} {getMessageForStatus.get(response.status.toString())}</span>
+		<select bind:value={response_format} class="select mr-1 mt-5 ml-2 p-2 text-xs hidden lg:inline-block w-24" id="format">
+			<option value="json">JSON</option>
+			<option value="html">HTML</option>
+			<option value="text">TEXT</option>
+		</select>
+		<span
+			class="badge {get_status_colour(parseInt(response.status))}">{response.status} {getMessageForStatus.get(response.status.toString())}</span>
 		<span class="badge variant-filled">{duration_to_string(response.elapsed)}</span>
-		<span class="badge variant-filled">{(new TextEncoder().encode(JSON.parse(JSON.stringify(response.body)))).length} B</span>
+		<span class="badge variant-filled">{(new TextEncoder().encode(JSON.parse(JSON.stringify(response.body)))).length}
+			B</span>
 	</div>
 	<TabGroup>
 		<Tab bind:group={current_tab_index} name="tab1" value={0}>
@@ -28,7 +36,7 @@
 		<svelte:fragment slot="panel">
 			{#if current_tab_index === 0}
 				<div class="border-white min-w-screen min-h-screen text-black rounded-2xl text-wrap p-5 overflow-scroll">
-						 <CodeBlock lineNumbers language="json" code={response.body}></CodeBlock>
+					<CodeBlock lineNumbers language={response_format} code={response.body}></CodeBlock>
 				</div>
 			{:else if current_tab_index === 1}
 				<div class="table-container">

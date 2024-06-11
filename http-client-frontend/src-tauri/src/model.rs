@@ -18,6 +18,7 @@ pub struct Response {
     pub(crate) body: String,
     pub(crate) headers: Vec<Header>,
     pub(crate) elapsed: Duration,
+    pub(crate) content_type: String
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

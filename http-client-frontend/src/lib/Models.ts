@@ -58,7 +58,8 @@ export interface Response {
 	size: string,
 	body: string,
 	headers: Header[],
-	elapsed: Duration
+	elapsed: Duration,
+	content_type: string
 }
 
 export function get_scratchpad(): Request {

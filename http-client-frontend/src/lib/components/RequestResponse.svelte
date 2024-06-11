@@ -55,15 +55,16 @@
 			.then(value => {
 				if (typeof value === 'string') {
 					let json: any = JSON.parse(value);
-					console.log(json.body)
-					response = {
-						status: json.status,
-						size: json.size,
-						body: JSON.stringify(JSON.parse(json.body), null, 2),
-						headers: json.headers,
-						elapsed: json.elapsed
-					};
-				}
+						response = {
+							status: json.status,
+							size: json.size,
+							body: json.content_type === "application/json" ?  JSON.stringify(JSON.parse(json.body), null, 2) : json.body,
+							headers: json.headers,
+							elapsed: json.elapsed,
+							content_type: json.content_type
+						};
+					}
+				console.log(response)
 				toastStore.trigger(request_success);
 				pending_request = false;
 			});

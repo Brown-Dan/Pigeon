@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::any::Any;
 use std::collections::HashMap;
 use std::str::FromStr;
 use std::time::Instant;
@@ -56,8 +57,13 @@ async fn send_request(request: Request) -> String {
     let status = response.status().as_u16();
     let response_headers = response.headers();
 
+    let mut content_type: String = "".to_string(); 
+    
     let mut response_headers_vec: Vec<Header> = Vec::new();
     for (key, value) in response_headers.iter() {
+        if (key.to_string().eq_ignore_ascii_case("CONTENT-TYPE")) {
+            content_type = value.to_str().unwrap().to_string()
+        }
         let header_value = value.to_str().unwrap().to_string();
         response_headers_vec.push(Header { name: key.to_string(), value: header_value, enabled: false });
     }
@@ -73,6 +79,7 @@ async fn send_request(request: Request) -> String {
         size,
         headers: response_headers_vec,
         elapsed,
+        content_type
     };
     let historic_request: Request = Request {
         name: String::from("_"),
