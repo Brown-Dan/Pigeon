@@ -23,7 +23,7 @@
 	<button type="button" class=" btn-sm" on:click={delete_headers}>Delete All</button>
 </div>
 {#each request.headers as header, index}
-	<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] m-4">
+	<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] mb-4">
 		<input class="p-0 text-xs m-0 font-semibold pl-3" bind:value={header.name} type="text" placeholder="name" disabled={!header.enabled} />
 		<input class="p-0 text-xs m-0 font-semibold pl-3" bind:value={header.value} type="text" placeholder="value" disabled={!header.enabled} />
 		<div class="input-group-shim">
