@@ -34,7 +34,7 @@ fn map_query_param_vec_to_hashmap(query_params: &Vec<QueryParam>) -> HashMap<&St
 
 fn map_header_vec_to_hashmap(headers: &Vec<Header>) -> HeaderMap {
     headers.iter().filter_map(|item: &Header| {
-        match item.enabled {
+        match item.enabled && !item.name.is_empty() {
             true => Some((HeaderName::from_str(&item.name).unwrap(), HeaderValue::from_str(&*item.value).unwrap())),
             false => None
         }

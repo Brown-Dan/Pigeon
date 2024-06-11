@@ -36,6 +36,16 @@
 		timeout: 3000,
 		background: 'variant-filled-success'
 	};
+
+	function trigger_failure(message: string) {
+		const request_failure: ToastSettings = {
+			message: '😭 ' + message,
+			timeout: 3000,
+			background: 'variant-filled-primary'
+		};
+		toastStore.trigger(request_failure)
+	}
+
 	let response: Response;
 	let current_tab: number = 0;
 	let pending_request = false;
@@ -43,7 +53,7 @@
 	function update_request() {
 		requests.subscribe(value => {
 			value.orphaned_requests.forEach(r => invoke('add_request', { request: r }));
-			value.collections.forEach(c => c.requests.forEach(r => invoke('add_request', {request: r})))
+			value.collections.forEach(c => c.requests.forEach(r => invoke('add_request', { request: r })));
 		});
 	}
 
@@ -53,19 +63,23 @@
 		invoke('send_request', { request: request })
 			.then(value => {
 				if (typeof value === 'string') {
-					let json: any = JSON.parse(value);
+					if (value.includes('error sending request for url')) {
+						trigger_failure(value)
+						pending_request = false;
+					} else {
+						let json: any = JSON.parse(value);
 						response = {
 							status: json.status,
 							size: json.size,
-							body: json.content_type.includes("application/json") ?  JSON.stringify(JSON.parse(json.body), null, 2) : json.body,
+							body: json.content_type.includes('application/json') ? JSON.stringify(JSON.parse(json.body), null, 2) : json.body,
 							headers: json.headers,
 							elapsed: json.elapsed,
 							content_type: json.content_type
 						};
+						toastStore.trigger(request_success);
+						pending_request = false;
 					}
-				console.log(response)
-				toastStore.trigger(request_success);
-				pending_request = false;
+				}
 			});
 	}
 
@@ -79,7 +93,7 @@
 			<Tab bind:group={current_tab} name="tab3" value={2}>Headers</Tab>
 			<svelte:fragment slot="panel">
 				<div hidden={current_tab !== 0} id="body">
-				<div id="editor"></div>
+					<div id="editor"></div>
 				</div>
 				<div hidden={current_tab !== 1}>
 					<QueryParamsForm {request} />
