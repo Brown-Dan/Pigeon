@@ -1,31 +1,26 @@
 <script lang="ts">
 	import { invoke } from '@tauri-apps/api/tauri';
-	import { getToastStore, storeHighlightJs, Tab, TabGroup, type ToastSettings } from '@skeletonlabs/skeleton';
+	import { getToastStore, Tab, TabGroup, type ToastSettings } from '@skeletonlabs/skeleton';
 	import ResponseView from './ResponseView.svelte';
 	import { requests } from '$lib/RequestsStore';
 	import type { Request, Response } from '$lib/Models';
 	import HeadersForm from '$lib/components/HeadersForm.svelte';
 	import QueryParamsForm from '$lib/components/QueryParamsForm.svelte';
-	import Quill, { type QuillOptions } from 'quill';
 	import 'quill/dist/quill.snow.css';
-	import hljs from 'highlight.js';
 	import 'highlight.js/styles/srcery.css';
-	import json from 'highlight.js/lib/languages/json';
-	import { onMount } from 'svelte';
 	import UrlMethodInput from '$lib/components/UrlMethodInput.svelte';
-
-	hljs.registerLanguage('json', json);
-	storeHighlightJs.set(hljs);
+	import { basicSetup, EditorView } from 'codemirror';
+	import { keymap } from '@codemirror/view';
+	import { json, jsonParseLinter } from '@codemirror/lang-json';
+	import { indentWithTab } from '@codemirror/commands';
+	import { onMount } from 'svelte';
 
 	onMount(() => {
-		const options: QuillOptions = {
-			modules: {
-				toolbar: [['code-block']],
-				syntax: { hljs }
-			},
-			theme: 'snow'
-		};
-		const quill = new Quill('#editor', options);
+		new EditorView({
+			extensions: [basicSetup, json(), keymap.of([indentWithTab])],
+			parent: document.querySelector('#body'),
+			linter: jsonParseLinter()
+		});
 	});
 
 	export let request: Request;
@@ -43,7 +38,7 @@
 			timeout: 3000,
 			background: 'variant-filled-primary'
 		};
-		toastStore.trigger(request_failure)
+		toastStore.trigger(request_failure);
 	}
 
 	let response: Response | undefined;
@@ -68,7 +63,7 @@
 			.then(value => {
 				if (typeof value === 'string') {
 					if (value.includes('error sending request for url')) {
-						trigger_failure(value)
+						trigger_failure(value);
 						pending_request = false;
 					} else {
 						let json: any = JSON.parse(value);
@@ -88,6 +83,7 @@
 	}
 
 </script>
+
 <div class="grid grid-cols-10 min-h-max m-5">
 	<div class="mt-16 col-span-4">
 		<UrlMethodInput {request} />
@@ -98,7 +94,7 @@
 			<Tab bind:group={current_tab} name="tab4" value={3}>Scripts</Tab>
 			<svelte:fragment slot="panel">
 				<div hidden={current_tab !== 0} id="body">
-					<div id="editor"></div>
+					<div id="body"></div>
 				</div>
 				<div hidden={current_tab !== 1}>
 					<QueryParamsForm {request} />
