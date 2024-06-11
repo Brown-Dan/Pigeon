@@ -43,7 +43,7 @@ fn map_header_vec_to_hashmap(headers: &Vec<Header>) -> HeaderMap {
 
 #[tauri::command]
 async fn send_request(request: Request) -> String {
-    println!("{}", request.body);
+    println!("{:?}", request.body);
     let now = Instant::now();
     let response = reqwest::Client::new()
         .get(&request.url)

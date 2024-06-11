@@ -9,7 +9,13 @@ pub struct Request {
     pub(crate) collection_name: String,
     pub(crate) headers: Vec<Header>,
     pub(crate) query_params: Vec<QueryParam>, 
-    pub(crate) body: String
+    pub(crate) body: Body
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Body {
+    pub(crate) content: String,
+    pub(crate) enabled: bool
 }
 
 #[derive(Serialize, Deserialize)]

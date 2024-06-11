@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { invoke } from '@tauri-apps/api/tauri';
-	import { getToastStore, Tab, TabGroup, type ToastSettings } from '@skeletonlabs/skeleton';
+	import { getToastStore, SlideToggle, Tab, TabGroup, type ToastSettings } from '@skeletonlabs/skeleton';
 	import ResponseView from './ResponseView.svelte';
 	import { requests } from '$lib/RequestsStore';
 	import type { Request, Response } from '$lib/Models';
@@ -15,6 +15,8 @@
 	import { indentWithTab } from '@codemirror/commands';
 	import { onMount } from 'svelte';
 	import { linter, lintGutter } from '@codemirror/lint';
+
+	export let request: Request;
 
 	let myTheme = EditorView.theme({
 		'.cm-content .cm-gutter .cm-wrap': {
@@ -40,11 +42,9 @@
 		}
 	}, { dark: true });
 
-	export let request: Request;
-
 	let editor: EditorView;
 	let startState = EditorState.create({
-		doc: request.body,
+		doc: request.body.content,
 		extensions: [
 			keymap.of([indentWithTab]),
 			json(),
@@ -80,11 +80,22 @@
 		toastStore.trigger(request_failure);
 	}
 
+	function cannot_format_json_error() {
+		const format_failure: ToastSettings = {
+			message: '😭 Failed to format json',
+			timeout: 3000,
+			background: 'variant-filled-primary'
+		};
+		toastStore.trigger(format_failure);
+	}
+
 	let response: Response | undefined;
 	let current_tab: number = 0;
 	let pending_request = false;
+	let including_body = false;
 
 	function update_request() {
+		request.body.content = editor.state.doc.toString();
 		requests.subscribe(value => {
 			value.orphaned_requests.forEach(r => invoke('add_request', { request: r }));
 			value.collections.forEach(c => c.requests.forEach(r => invoke('add_request', { request: r })));
@@ -93,7 +104,6 @@
 
 	function send_request() {
 		pending_request = true;
-		request.body = editor.state.doc.toString();
 		update_request();
 		invoke('send_request', { request: request })
 			.then(value => {
@@ -117,23 +127,46 @@
 				}
 			});
 	}
+
+	function format_body() {
+		update_request();
+		try {
+			const transaction = editor.state.update({
+				changes: {
+					from: 0,
+					to: editor.state.doc.length,
+					insert: JSON.stringify(JSON.parse(editor.state.doc.toString()), null, 2)
+				}
+			});
+			editor.dispatch(transaction);
+		} catch (e) {
+			cannot_format_json_error();
+		}
+	}
+
+	$: {
+		if (editor) {
+			const transaction = editor.state.update({
+				changes: { from: 0, to: editor.state.doc.length, insert: request.body.content }
+			});
+			editor.dispatch(transaction);
+		}
+	}
 </script>
 
 <div class="grid grid-cols-10 min-h-max m-5">
 	<div class="mt-16 col-span-4">
 		<UrlMethodInput {request} />
-		<div>
-			{request.name}
-		</div>
 		<TabGroup>
 			<Tab bind:group={current_tab} name="tab1" value={0}>Body</Tab>
 			<Tab bind:group={current_tab} name="tab2" value={1}>Parameters</Tab>
 			<Tab bind:group={current_tab} name="tab3" value={2}>Headers</Tab>
 			<Tab bind:group={current_tab} name="tab4" value={3}>Scripts</Tab>
 			<svelte:fragment slot="panel">
-				<div hidden={current_tab !== 0} id="body">
-					<div id="body"></div>
-				</div>
+				<SlideToggle name="slider-label" bind:checked={including_body}>Include Body</SlideToggle>
+					<div hidden={current_tab !== 0} id="body" class="mt-2 {including_body ? '' : 'hidden'}">
+						<div id="body"></div>
+					</div>
 				<div hidden={current_tab !== 1}>
 					<QueryParamsForm {request} />
 				</div>
@@ -145,7 +178,10 @@
 				</div>
 			</svelte:fragment>
 		</TabGroup>
-		<button on:click={send_request} type="button" class="btn btn-xl variant-filled mt-5 text">
+		<button on:click={format_body} type="button" class="btn text variant-filled mt-5">
+			Format JSON
+		</button>
+		<button on:click={send_request} type="button" class="btn variant-filled mt-5 text">
 			<svg
 				class="{pending_request === false ? 'hidden' : ''}  w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
 				viewBox="0 0 100 101" fill="none"
