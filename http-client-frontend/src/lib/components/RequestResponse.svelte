@@ -58,7 +58,7 @@
 						response = {
 							status: json.status,
 							size: json.size,
-							body: json.content_type === "application/json" ?  JSON.stringify(JSON.parse(json.body), null, 2) : json.body,
+							body: json.content_type.includes("application/json") ?  JSON.stringify(JSON.parse(json.body), null, 2) : json.body,
 							headers: json.headers,
 							elapsed: json.elapsed,
 							content_type: json.content_type
