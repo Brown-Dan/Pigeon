@@ -105,6 +105,16 @@
 		}
 	};
 
+	function clone_request() {
+		const req_copy = {...selected_request};
+		req_copy.name = req_copy.name + "clone";
+		invoke('add_request', { request: req_copy });
+		requests.update((value) => {
+			value.orphaned_requests.push(req_copy);
+			return value;
+		})
+	}
+
 	function open_request_tab(request: Request) {
 		window.dispatchEvent(new CustomEvent('requestBarClick', { detail: request }));
 	}
@@ -134,6 +144,7 @@
 	<div class="btn-group-vertical min-w-full">
 		<button on:click={add_request}>Rename</button>
 		<button on:click={delete_request}>Delete</button>
+		<button on:click={clone_request}>Clone</button>
 	</div>
 	<div class="arrow bg-surface-100-800-token" />
 </div>
