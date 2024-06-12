@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 use std::time::Instant;
+use reqwest::Body;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use crate::file_service;
 use crate::model::{Header, QueryParam, Request, RequestMethod, Response};
@@ -19,20 +20,28 @@ use crate::model::{Header, QueryParam, Request, RequestMethod, Response};
 // fn add_historic_request(request: Request, response: Response) {
 //     file_service::add_history(request, &response);
 // }
-//
-//
+
+
 // async fn get(request: Request) -> Response {
 //     let now = Instant::now();
 //     let response = reqwest::Client::new()
 //         .get(&request.url)
-//         .query(&crate::map_query_param_vec_to_hashmap(&request.query_params))
-//         .headers(crate::map_header_vec_to_hashmap(&request.headers))
+//         .query(&map_query_param_vec_to_hashmap(&request.query_params))
+//         .headers(map_header_vec_to_header_map(&request.headers))
 //         .send().await;
 //     let elapsed = now.elapsed();
 // }
 //
-// fn post(request: Request) -> Response {
-//         // TODO needs request body
+// async fn post(request: Request) -> Response {
+//     let sent = Instant::now();
+//     let response = reqwest::Client::new()
+//         .post(&request.url)
+//         .body(request.body.content)
+//         .query(&map_query_param_vec_to_hashmap(&request.query_params))
+//         .headers(map_header_vec_to_header_map(&request.headers))
+//         .send().await;
+//     let elapsed = sent.elapsed();
+//     return response;
 // }
 //
 // async fn delete(request: Request) -> Response {

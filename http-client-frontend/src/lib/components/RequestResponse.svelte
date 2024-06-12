@@ -10,7 +10,7 @@
 	import UrlMethodInput from '$lib/components/UrlMethodInput.svelte';
 	import { basicSetup, EditorView } from 'codemirror';
 	import { EditorState } from '@codemirror/state';
-	import { keymap, lineNumbers, GutterMarker, gutter } from '@codemirror/view';
+	import { keymap, lineNumbers } from '@codemirror/view';
 	import { json, jsonParseLinter } from '@codemirror/lang-json';
 	import { indentWithTab } from '@codemirror/commands';
 	import { onMount } from 'svelte';
@@ -90,6 +90,7 @@
 	let response: Response | undefined;
 	let current_tab: number = 0;
 	let pending_request = false;
+
 	function update_request() {
 		request.body.content = editor.state.doc.toString();
 		requests.subscribe(value => {
@@ -125,7 +126,6 @@
 	}
 
 	function format_body() {
-		console.log(JSON.stringify(JSON.parse(editor.state.doc.toString()), null, 2));
 		try {
 			const transaction = editor.state.update({
 				changes: {
@@ -137,7 +137,7 @@
 			editor.dispatch(transaction);
 			update_request();
 		} catch (e) {
-			console.log(e)
+			console.log(e);
 			cannot_format_json_error();
 		}
 	}
@@ -161,14 +161,15 @@
 			<Tab bind:group={current_tab} name="tab3" value={2}>Headers</Tab>
 			<Tab bind:group={current_tab} name="tab4" value={3}>Scripts</Tab>
 			<svelte:fragment slot="panel">
-				<SlideToggle name="slider-label" bind:checked={request.body.enabled}>Include Body</SlideToggle>
-					<div hidden={current_tab !== 0} id="body" class="mt-2 {request.body.enabled ? '' : 'hidden'}">
-						<div id="body">
-							<button on:click={format_body} type="button" class="btn text variant-filled px-4 py-2 bg-blue-500 text-white rounded mb-2">
-								Format JSON
-							</button>
-						</div>
+				<div hidden={current_tab !== 0} class="mt-2">
+					<SlideToggle name="slider-label" bind:checked={request.body.enabled}>Include Body</SlideToggle>
+					<div id="body" class="{request.body.enabled ? '' : 'hidden'}">
+						<button on:click={format_body} type="button"
+										class="btn text variant-filled px-4 py-2 bg-blue-500 text-white rounded mb-2">
+							Format JSON
+						</button>
 					</div>
+				</div>
 				<div hidden={current_tab !== 1}>
 					<QueryParamsForm {request} />
 				</div>
