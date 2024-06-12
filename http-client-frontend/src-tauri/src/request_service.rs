@@ -3,6 +3,8 @@ use std::str::FromStr;
 use std::time::{Duration, Instant};
 
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
+use reqwest::RequestBuilder;
+use tauri::http::ResponseBuilder;
 
 use crate::file_service;
 use crate::model::{Header, QueryParam, Request, RequestMethod, Response};
@@ -10,11 +12,11 @@ use crate::model::{Header, QueryParam, Request, RequestMethod, Response};
 pub async fn send_request(request: Request) -> String {
     let now = Instant::now();
     let result = match &request.method {
-        RequestMethod::GET => get(&request).await,
-        RequestMethod::POST => post(&request).await,
-        RequestMethod::DELETE => post(&request).await,
-        RequestMethod::PATCH => post(&request).await,
-        RequestMethod::PUT => post(&request).await
+        RequestMethod::GET =>  build_request(&request, get(&request)).send().await,
+        RequestMethod::POST => build_request(&request, post(&request)).send().await,
+        RequestMethod::DELETE => build_request(&request, delete(&request)).send().await,
+        RequestMethod::PATCH => build_request(&request, patch(&request)).send().await,
+        RequestMethod::PUT => build_request(&request, put(&request)).send().await
     };
     let elapsed = now.elapsed();
     let response = match result {
@@ -26,6 +28,16 @@ pub async fn send_request(request: Request) -> String {
 
     file_service::add_history(request, &mapped_response);
     return serde_json::to_string(&mapped_response).expect("Error");
+}
+
+fn build_request(request: &Request, request_builder: RequestBuilder) -> RequestBuilder {
+    let mut request_builder = request_builder
+        .query(&map_query_param_vec_to_hashmap(&request.query_params))
+        .headers(map_header_vec_to_header_map(&request.headers));
+    if (request.body.enabled) {
+        request_builder = request_builder.body(request.body.content.clone());
+    }
+    return request_builder;
 }
 
 fn add_historic_request(request: Request, response: Response) {
@@ -47,55 +59,24 @@ async fn map_response(response: reqwest::Response, duration: Duration) -> Respon
     };
 }
 
-
-async fn get(request: &Request) -> Result<reqwest::Response, reqwest::Error> {
-    let response = reqwest::Client::new()
-        .get(&request.url)
-        .query(&map_query_param_vec_to_hashmap(&request.query_params))
-        .headers(map_header_vec_to_header_map(&request.headers))
-        .send().await;
-    return response;
+fn get(request: &Request) -> RequestBuilder {
+    return reqwest::Client::new().get(&request.url);
 }
 
-async fn post(request: &Request) -> Result<reqwest::Response, reqwest::Error> {
-    let sent = Instant::now();
-    let response = reqwest::Client::new()
-        .post(&request.url)
-        .body(request.body.content.clone())
-        .query(&map_query_param_vec_to_hashmap(&request.query_params))
-        .headers(map_header_vec_to_header_map(&request.headers))
-        .send().await;
-    let elapsed = sent.elapsed();
-    return response;
+fn post(request: &Request) -> RequestBuilder {
+     return reqwest::Client::new().post(&request.url);
 }
 
-async fn delete(request: &Request) -> Result<reqwest::Response, reqwest::Error> {
-    let response = reqwest::Client::new()
-        .delete(&request.url)
-        .query(&crate::map_query_param_vec_to_hashmap(&request.query_params))
-        .headers(crate::map_header_vec_to_hashmap(&request.headers))
-        .send().await;
-    return response;
+fn delete(request: &Request) -> RequestBuilder {
+    return reqwest::Client::new().delete(&request.url);
 }
 
-async fn patch(request: &Request) -> Result<reqwest::Response, reqwest::Error> {
-    let response = reqwest::Client::new()
-        .post(&request.url)
-        // .body(&*request.body.content)
-        .query(&map_query_param_vec_to_hashmap(&request.query_params))
-        .headers(map_header_vec_to_header_map(&request.headers))
-        .send().await;
-    return response;
+fn patch(request: &Request) -> RequestBuilder {
+    return reqwest::Client::new().patch(&request.url);
 }
 
-async fn put(request: &Request) -> Result<reqwest::Response, reqwest::Error> {
-    let response = reqwest::Client::new()
-        .post(&request.url)
-        // .body(&*request.body.content)
-        .query(&map_query_param_vec_to_hashmap(&request.query_params))
-        .headers(map_header_vec_to_header_map(&request.headers))
-        .send().await;
-    return response;
+fn put(request: &Request) -> RequestBuilder {
+    return reqwest::Client::new().put(&request.url);
 }
 
 fn map_header_map_to_header_vec(headers: &HeaderMap) -> Vec<Header> {
