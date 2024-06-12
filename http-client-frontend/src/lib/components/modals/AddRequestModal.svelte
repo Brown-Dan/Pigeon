@@ -22,7 +22,11 @@
 			method: formData.method,
 			collection_name: $modalStore[0].meta.name === undefined ? 'orphan' : $modalStore[0].meta.name,
 			headers: [],
-			query_params: []
+			query_params: [],
+			body: {
+				content: "{}",
+				enabled: false
+			}
 		};
 
 		invoke('add_request', { request: new_request });

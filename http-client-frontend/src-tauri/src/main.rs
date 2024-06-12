@@ -4,7 +4,6 @@
 use std::any::Any;
 use std::collections::HashMap;
 use std::str::FromStr;
-use std::time::Instant;
 
 use reqwest;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
@@ -43,57 +42,58 @@ fn map_header_vec_to_hashmap(headers: &Vec<Header>) -> HeaderMap {
 
 #[tauri::command]
 async fn send_request(request: Request) -> String {
-    println!("{:?}", request.body);
-    let now = Instant::now();
-    let response = reqwest::Client::new()
-        .get(&request.url)
-        .query(&map_query_param_vec_to_hashmap(&request.query_params))
-        .headers(map_header_vec_to_hashmap(&request.headers))
-        .send().await;
-    let elapsed = now.elapsed();
-    let response = match response {
-        Ok(response) => response,
-        Err(e) => return e.to_string(),
-    };
-    let status = response.status().as_u16();
-    let response_headers = response.headers();
-
-    let mut content_type: String = "".to_string(); 
-    
-    let mut response_headers_vec: Vec<Header> = Vec::new();
-    for (key, value) in response_headers.iter() {
-        if (key.to_string().eq_ignore_ascii_case("CONTENT-TYPE")) {
-            content_type = value.to_str().unwrap().to_string()
-        }
-        let header_value = value.to_str().unwrap().to_string();
-        response_headers_vec.push(Header { name: key.to_string(), value: header_value, enabled: false });
-    }
-
-    let body = match response.text().await {
-        Ok(body) => body,
-        Err(e) => return e.to_string(),
-    };
-    let size = body.len().to_string();
-    let my_response = Response {
-        status,
-        body,
-        size,
-        headers: response_headers_vec,
-        elapsed,
-        content_type
-    };
-    let historic_request: Request = Request {
-        name: String::from("_"),
-        url: request.url,
-        method: request.method,
-        collection_name: String::from("_"),
-        headers: request.headers,
-        query_params: request.query_params,
-        body: request.body
-    };
-    file_service::add_history(historic_request, &my_response);
-
-    return serde_json::to_string(&my_response).expect("Error");
+    return request_service::send_request(request).await;
+    // println!("{:?}", request.body);
+    // let now = Instant::now();
+    // let response = reqwest::Client::new()
+    //     .get(&request.url)
+    //     .query(&map_query_param_vec_to_hashmap(&request.query_params))
+    //     .headers(map_header_vec_to_hashmap(&request.headers))
+    //     .send().await;
+    // let elapsed = now.elapsed();
+    // let response = match response {
+    //     Ok(response) => response,
+    //     Err(e) => return e.to_string(),
+    // };
+    // let status = response.status().as_u16();
+    // let response_headers = response.headers();
+    //
+    // let mut content_type: String = "".to_string();
+    //
+    // let mut response_headers_vec: Vec<Header> = Vec::new();
+    // for (key, value) in response_headers.iter() {
+    //     if (key.to_string().eq_ignore_ascii_case("CONTENT-TYPE")) {
+    //         content_type = value.to_str().unwrap().to_string()
+    //     }
+    //     let header_value = value.to_str().unwrap().to_string();
+    //     response_headers_vec.push(Header { name: key.to_string(), value: header_value, enabled: false });
+    // }
+    //
+    // let body = match response.text().await {
+    //     Ok(body) => body,
+    //     Err(e) => return e.to_string(),
+    // };
+    // let size = body.len().to_string();
+    // let my_response = Response {
+    //     status,
+    //     body,
+    //     size,
+    //     headers: response_headers_vec,
+    //     elapsed,
+    //     content_type
+    // };
+    // let historic_request: Request = Request {
+    //     name: String::from("_"),
+    //     url: request.url,
+    //     method: request.method,
+    //     collection_name: String::from("_"),
+    //     headers: request.headers,
+    //     query_params: request.query_params,
+    //     body: request.body
+    // };
+    // file_service::add_history(historic_request, &my_response);
+    //
+    // return serde_json::to_string(&my_response).expect("Error");
 }
 
 #[tauri::command]
