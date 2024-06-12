@@ -4,7 +4,6 @@ use std::time::{Duration, Instant};
 
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::RequestBuilder;
-use tauri::http::ResponseBuilder;
 
 use crate::file_service;
 use crate::model::{Header, QueryParam, Request, RequestMethod, Response};
@@ -12,7 +11,7 @@ use crate::model::{Header, QueryParam, Request, RequestMethod, Response};
 pub async fn send_request(request: Request) -> String {
     let now = Instant::now();
     let result = match &request.method {
-        RequestMethod::GET =>  build_request(&request, get(&request)).send().await,
+        RequestMethod::GET => build_request(&request, get(&request)).send().await,
         RequestMethod::POST => build_request(&request, post(&request)).send().await,
         RequestMethod::DELETE => build_request(&request, delete(&request)).send().await,
         RequestMethod::PATCH => build_request(&request, patch(&request)).send().await,
@@ -34,14 +33,10 @@ fn build_request(request: &Request, request_builder: RequestBuilder) -> RequestB
     let mut request_builder = request_builder
         .query(&map_query_param_vec_to_hashmap(&request.query_params))
         .headers(map_header_vec_to_header_map(&request.headers));
-    if (request.body.enabled) {
+    if request.body.enabled {
         request_builder = request_builder.body(request.body.content.clone());
     }
     return request_builder;
-}
-
-fn add_historic_request(request: Request, response: Response) {
-    file_service::add_history(request, &response);
 }
 
 async fn map_response(response: reqwest::Response, duration: Duration) -> Response {
@@ -64,7 +59,7 @@ fn get(request: &Request) -> RequestBuilder {
 }
 
 fn post(request: &Request) -> RequestBuilder {
-     return reqwest::Client::new().post(&request.url);
+    return reqwest::Client::new().post(&request.url);
 }
 
 fn delete(request: &Request) -> RequestBuilder {
