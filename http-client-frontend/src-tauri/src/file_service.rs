@@ -3,8 +3,10 @@ use std::fs;
 use std::fs::DirEntry;
 use std::io::Error;
 use std::path::PathBuf;
+#[allow(unused_imports)]
 use std::time::SystemTime;
 
+#[allow(unused_imports)]
 use crate::model::{AddCollectionRequest, Collection, HistoricRequest, History, Request, Requests};
 use crate::Response;
 
@@ -24,6 +26,7 @@ pub fn get_history() -> History {
                 })
 }
 
+#[cfg(not(test))]
 fn build_historic_request(request: &Request, response: &Response) -> HistoricRequest {
     return HistoricRequest {
         time: SystemTime::now(),
@@ -34,7 +37,7 @@ fn build_historic_request(request: &Request, response: &Response) -> HistoricReq
         speed: response.elapsed,
     };
 }
-
+#[cfg(not(test))]
 pub fn add_history(request: Request, response: &Response) {
     let history_path: PathBuf = get_history_path();
     fs::write(&history_path, serde_json::to_string(&fs::read(&history_path)
@@ -170,8 +173,12 @@ fn get_pigeon_path() -> PathBuf {
     path_buf.push("Pigeon");
     return path_buf;
 }
-
+#[allow(dead_code)]
 fn delete_history() {
     let path = get_history_path();
     fs::write(path, "").unwrap();
 }
+
+#[cfg(test)]
+#[allow(unused_variables)]
+pub fn add_history(request: Request, response: &Response) {}

@@ -1,17 +1,11 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::any::Any;
-use std::str::FromStr;
-
-use reqwest;
-
 use crate::model::{AddCollectionRequest, History, Request, Requests, Response};
 
 mod file_service;
 mod request_service;
 mod model;
-mod request_service_test;
 
 fn main() {
     tauri::Builder::default()
@@ -22,7 +16,11 @@ fn main() {
 
 #[tauri::command]
 async fn send_request(request: Request) -> String {
-    return request_service::send_request(request).await;
+    let response = request_service::send_request(request).await;
+    match &response {
+        Some(r) => return serde_json::to_string(r).unwrap(),
+        None => String::from("Error sending Request")
+    }
 }
 
 #[tauri::command]

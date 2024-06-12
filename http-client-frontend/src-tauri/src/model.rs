@@ -18,7 +18,7 @@ pub struct Body {
     pub(crate) enabled: bool
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Response {
     pub(crate) status: u16,
     pub(crate) size: String,
@@ -28,7 +28,7 @@ pub struct Response {
     pub(crate) content_type: String
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Header {
     pub(crate) name: String,
     pub(crate) value: String,

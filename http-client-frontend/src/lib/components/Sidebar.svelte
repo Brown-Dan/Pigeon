@@ -225,7 +225,7 @@
 								</svelte:fragment>
 								<div class="flex items-center justify-between">
 									<div class="flex items-center">
-										<span class="badge variant-filled-success mr-2 text-xs">{request.method}</span>
+										<span class="badge {method_to_colour.get(request.method)} mr-2 text-xs">{method_to_abb.get(request.method)}</span>
 										<span class="overflow-hidden whitespace-nowrap text-sm">{limit_request_chars(request.name)}</span>
 									</div>
 								</div>
