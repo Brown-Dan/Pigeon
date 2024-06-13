@@ -19,6 +19,7 @@
 	import AddRequestModal from '$lib/components/modals/AddRequestModal.svelte';
 	import { limit_chars, method_to_abb, method_to_colour } from '$lib/MethodUtils';
 	import RenameRequestModal from '$lib/components/modals/RenameRequestModal.svelte';
+	import MoveRequestModal from '$lib/components/modals/MoveRequestModal.svelte';
 
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -35,7 +36,8 @@
 	const modalRegistry: Record<string, ModalComponent> = {
 		addCollectionModal: { ref: AddCollectionModal },
 		addRequestModal: { ref: AddRequestModal },
-		renameRequestModal: { ref: RenameRequestModal }
+		renameRequestModal: { ref: RenameRequestModal },
+		moveRequestModal: { ref: MoveRequestModal }
 	};
 
 	const collectionSettingsPopup: PopupSettings = {
@@ -56,6 +58,15 @@
 		type: 'component',
 		component: 'addCollectionModal'
 	};
+
+	async function move_request() {
+		const moveRequestModal: ModalSettings = {
+			type: 'component',
+			component: 'moveRequestModal',
+			meta: {request: selected_request}
+		};
+		modalStore.trigger(moveRequestModal)
+	}
 
 	async function add_request() {
 		const addRequestModal: ModalSettings = {
@@ -100,8 +111,8 @@
 				invoke('delete_request', { request: selected_request });
 				requests.update((value) => {
 					if (selected_request.collection_name === 'orphan') {
-							value.orphaned_requests = value.orphaned_requests.filter(r => r.name !== selected_request.name);
-							return value;
+						value.orphaned_requests = value.orphaned_requests.filter(r => r.name !== selected_request.name);
+						return value;
 					} else {
 						let v = value.collections.map(collection => collection.name).indexOf(selected_request.collection_name, 0);
 						let c = value.collections.at(v);
@@ -117,21 +128,21 @@
 	};
 
 	function clone_request() {
-		const req_copy = {...selected_request};
-		req_copy.name = req_copy.name + " clone";
+		const req_copy = { ...selected_request };
+		req_copy.name = req_copy.name + ' clone';
 		invoke('add_request', { request: req_copy });
 		requests.update((value) => {
-			if (req_copy.collection_name === "orphan") {
+			if (req_copy.collection_name === 'orphan') {
 				value.orphaned_requests.push(req_copy);
 			} else {
 				let idx = value.collections.map(collection => collection.name).indexOf(selected_request.collection_name, 0);
 				let c = value.collections.at(idx);
 				if (c) {
-					c.requests.push(req_copy)
+					c.requests.push(req_copy);
 				}
 			}
 			return value;
-		})
+		});
 	}
 
 	function open_request_tab(request: Request) {
@@ -164,6 +175,7 @@
 		<button on:click={rename_request}>Rename</button>
 		<button on:click={delete_request}>Delete</button>
 		<button on:click={clone_request}>Clone</button>
+		<button on:click={move_request}>Move</button>
 	</div>
 	<div class="arrow bg-surface-100-800-token" />
 </div>
@@ -184,8 +196,10 @@
 			</svg>
 		</button>
 		<button on:click={add_request} class="p-1">
-			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-				<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+					 class="size-6">
+				<path stroke-linecap="round" stroke-linejoin="round"
+							d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
 			</svg>
 		</button>
 		<button class="p-1">
@@ -236,7 +250,8 @@
 								</svelte:fragment>
 								<div class="flex items-center justify-between">
 									<div class="flex items-center">
-										<span class="badge {method_to_colour.get(request.method)} mr-2 text-xs">{method_to_abb.get(request.method)}</span>
+										<span
+											class="badge {method_to_colour.get(request.method)} mr-2 text-xs">{method_to_abb.get(request.method)}</span>
 										<span class="overflow-hidden whitespace-nowrap text-sm">{limit_chars(request.name, 16)}</span>
 									</div>
 								</div>
