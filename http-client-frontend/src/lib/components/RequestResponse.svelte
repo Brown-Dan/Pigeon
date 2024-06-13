@@ -105,7 +105,6 @@
 		invoke('send_request', { request: request })
 			.then(value => {
 				if (typeof value === 'string') {
-					console.log(value)
 					if (value.includes('error sending request for url') || value.includes("Error sending Request")) {
 						trigger_failure(value);
 						pending_request = false;
