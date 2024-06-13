@@ -18,6 +18,7 @@
 	import { requests } from '$lib/RequestsStore';
 	import AddRequestModal from '$lib/components/modals/AddRequestModal.svelte';
 	import { limit_request_chars, method_to_abb, method_to_colour } from '$lib/MethodUtils';
+	import RenameRequestModal from '$lib/components/modals/RenameRequestModal.svelte';
 
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -33,7 +34,8 @@
 
 	const modalRegistry: Record<string, ModalComponent> = {
 		addCollectionModal: { ref: AddCollectionModal },
-		addRequestModal: { ref: AddRequestModal }
+		addRequestModal: { ref: AddRequestModal },
+		renameRequestModal: { ref: RenameRequestModal }
 	};
 
 	const collectionSettingsPopup: PopupSettings = {
@@ -62,6 +64,15 @@
 			meta: { name: selected_collection }
 		};
 		modalStore.trigger(addRequestModal);
+	}
+
+	async function rename_request() {
+		const renameRequestModal: ModalSettings = {
+			type: 'component',
+			component: 'renameRequestModal',
+			meta: { request: selected_request }
+		};
+		modalStore.trigger(renameRequestModal);
 	}
 
 	const confirmDeleteModal: ModalSettings = {
@@ -150,7 +161,7 @@
 
 <div class="z-50 card w-48 shadow-xl py-2 text-center" data-popup="requestSettingsPopup">
 	<div class="btn-group-vertical min-w-full">
-		<button on:click={add_request}>Rename</button>
+		<button on:click={rename_request}>Rename</button>
 		<button on:click={delete_request}>Delete</button>
 		<button on:click={clone_request}>Clone</button>
 	</div>

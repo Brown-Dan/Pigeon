@@ -182,3 +182,4 @@ fn delete_history() {
 #[cfg(test)]
 #[allow(unused_variables)]
 pub fn add_history(request: Request, response: &Response) {}
+
