@@ -3,6 +3,7 @@
 	import { getModalStore, type PaginationSettings, Paginator } from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { duration_to_string, type History } from '$lib/Models';
+	import { limit_chars } from '$lib/MethodUtils';
 
 	export let parent: SvelteComponent;
 	const modalStore = getModalStore();
@@ -53,7 +54,7 @@
 					{#each paginatedSource as request}
 						<tr>
 							<td>{new Date(request.time.secs_since_epoch*1000).toUTCString()}</td>
-							<td>{request.url}</td>
+							<td>{limit_chars(request.url, 75)}</td>
 							<td>{request.method}</td>
 							<td>{request.response_status}</td>
 							<td>{request.size} B</td>

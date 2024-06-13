@@ -14,9 +14,9 @@ export const method_to_abb: Map<string, string> = new Map([
 	["PATCH", "PTC"]
 ])
 
-export function limit_request_chars(name: string): string {
-	if (name.length > 16) {
-		return name.substring(0, 16).trimEnd() + "...";
+export function limit_chars(name: string, limit: number): string {
+	if (name.length > limit) {
+		return name.substring(0, limit).trimEnd() + "...";
 	}
 	return name;
 }

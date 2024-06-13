@@ -17,7 +17,7 @@
 	import AddCollectionModal from '$lib/components/modals/AddCollectionModal.svelte';
 	import { requests } from '$lib/RequestsStore';
 	import AddRequestModal from '$lib/components/modals/AddRequestModal.svelte';
-	import { limit_request_chars, method_to_abb, method_to_colour } from '$lib/MethodUtils';
+	import { limit_chars, method_to_abb, method_to_colour } from '$lib/MethodUtils';
 	import RenameRequestModal from '$lib/components/modals/RenameRequestModal.svelte';
 
 
@@ -237,7 +237,7 @@
 								<div class="flex items-center justify-between">
 									<div class="flex items-center">
 										<span class="badge {method_to_colour.get(request.method)} mr-2 text-xs">{method_to_abb.get(request.method)}</span>
-										<span class="overflow-hidden whitespace-nowrap text-sm">{limit_request_chars(request.name)}</span>
+										<span class="overflow-hidden whitespace-nowrap text-sm">{limit_chars(request.name, 16)}</span>
 									</div>
 								</div>
 							</TreeViewItem>
@@ -261,7 +261,7 @@
 
 					<span
 						class="ml-0 badge {method_to_colour.get(request.method)} mr-2 text-xs">{method_to_abb.get(request.method)}</span>
-					<span class="overflow-hidden whitespace-nowrap text-sm">{limit_request_chars(request.name)}</span>
+					<span class="overflow-hidden whitespace-nowrap text-sm">{limit_chars(request.name, 16)}</span>
 
 				</TreeViewItem>
 			{/each}
