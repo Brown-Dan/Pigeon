@@ -5,6 +5,7 @@ use std::io::Error;
 use std::path::PathBuf;
 #[allow(unused_imports)]
 use std::time::SystemTime;
+use reqwest::get;
 
 #[allow(unused_imports)]
 use crate::model::{AddCollectionRequest, Collection, HistoricRequest, History, Request, Requests};
@@ -102,6 +103,9 @@ pub fn get_files() -> Requests {
     let mut orphaned_requests: Vec<Request> = Vec::new();
     let mut collections: Vec<Collection> = Vec::new();
 
+    if !get_pigeon_path().exists() {
+        fs::create_dir(get_pigeon_path()).unwrap()
+    }
     let res = fs::read_dir(get_pigeon_path()).unwrap();
     for result in res {
         let entry: DirEntry = result.unwrap();
