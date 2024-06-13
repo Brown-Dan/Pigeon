@@ -3,7 +3,7 @@
 	import { getToastStore, SlideToggle, Tab, TabGroup, type ToastSettings } from '@skeletonlabs/skeleton';
 	import ResponseView from './ResponseView.svelte';
 	import { requests } from '$lib/RequestsStore';
-	import type { Request, Response } from '$lib/Models';
+	import type { Header, Request, Response } from '$lib/Models';
 	import HeadersForm from '$lib/components/HeadersForm.svelte';
 	import QueryParamsForm from '$lib/components/QueryParamsForm.svelte';
 	import 'highlight.js/styles/srcery.css';
@@ -102,10 +102,20 @@
 	function send_request() {
 		pending_request = true;
 		update_request();
+		if (request.body.enabled) {
+			if (!request.headers.map(h => h.name).includes('content-type', 0)) {
+				let content_type_json: Header = {
+					name: 'content-type',
+					value: 'application/json',
+					enabled: true
+				};
+				request.headers.push(content_type_json);
+			}
+		}
 		invoke('send_request', { request: request })
 			.then(value => {
 				if (typeof value === 'string') {
-					if (value.includes('error sending request for url') || value.includes("Error sending Request")) {
+					if (value.includes('error sending request for url') || value.includes('Error sending Request')) {
 						trigger_failure(value);
 						pending_request = false;
 					} else {
