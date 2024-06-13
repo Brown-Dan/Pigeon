@@ -30,6 +30,7 @@
 			}
 			return value;
 		});
+		window.dispatchEvent(new CustomEvent('renameRequest', { detail: (req.name, original_name) }));
 		modalStore.close();
 	}
 </script>
