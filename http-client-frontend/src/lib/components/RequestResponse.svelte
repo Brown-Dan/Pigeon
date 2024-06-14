@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { invoke } from '@tauri-apps/api/tauri';
-	import { getToastStore, SlideToggle, Tab, TabGroup, type ToastSettings } from '@skeletonlabs/skeleton';
+	import { getToastStore, SlideToggle, Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import ResponseView from './ResponseView.svelte';
 	import { requests } from '$lib/RequestsStore';
 	import type { Header, Request, Response } from '$lib/Models';
@@ -8,41 +8,24 @@
 	import QueryParamsForm from '$lib/components/QueryParamsForm.svelte';
 	import 'highlight.js/styles/srcery.css';
 	import UrlMethodInput from '$lib/components/UrlMethodInput.svelte';
+	import {
+		get_failure_formatting_json_notification,
+		get_failure_to_send_request_notification,
+		get_request_sent_notification
+	} from '$lib/Toasts';
 	import { EditorView } from 'codemirror';
 	import { onMount } from 'svelte';
 	import { getCodeMirror } from '$lib/RequestBodyCodeMirror';
 
 	export let request: Request;
 
+	const toastStore = getToastStore();
+
 	let editor: EditorView;
 	onMount(() => {
 		editor = getCodeMirror(request);
 	});
 
-	const toastStore = getToastStore();
-	const request_success: ToastSettings = {
-		message: '📤 Sent request',
-		timeout: 3000,
-		background: 'variant-filled-success'
-	};
-
-	function trigger_failure(message: string) {
-		const request_failure: ToastSettings = {
-			message: '😭 ' + message,
-			timeout: 3000,
-			background: 'variant-filled-primary'
-		};
-		toastStore.trigger(request_failure);
-	}
-
-	function cannot_format_json_error() {
-		const format_failure: ToastSettings = {
-			message: '😭 Failed to format json',
-			timeout: 3000,
-			background: 'variant-filled-primary'
-		};
-		toastStore.trigger(format_failure);
-	}
 
 	let response: Response | undefined;
 	let current_tab: number = 0;
@@ -73,7 +56,7 @@
 			.then(value => {
 				if (typeof value === 'string') {
 					if (value.includes('error sending request for url') || value.includes('Error sending Request')) {
-						trigger_failure(value);
+						toastStore.trigger(get_failure_to_send_request_notification(value));
 						pending_request = false;
 					} else {
 						let json: any = JSON.parse(value);
@@ -85,7 +68,7 @@
 							elapsed: json.elapsed,
 							content_type: json.content_type
 						};
-						toastStore.trigger(request_success);
+						toastStore.trigger(get_request_sent_notification());
 						pending_request = false;
 					}
 				}
@@ -105,7 +88,7 @@
 			update_request();
 		} catch (e) {
 			console.log(e);
-			cannot_format_json_error();
+			toastStore.trigger(get_failure_formatting_json_notification());
 		}
 	}
 
