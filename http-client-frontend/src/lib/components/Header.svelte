@@ -6,7 +6,6 @@
 		Modal,
 		type ModalComponent,
 		type ModalSettings,
-		SlideToggle,
 		storePopup
 	} from '@skeletonlabs/skeleton';
 	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
@@ -27,21 +26,6 @@
 		type: 'component',
 		component: 'historyModal'
 	};
-
-	let value: boolean = true;
-
-	function switch_theme() {
-
-		let html: HTMLElement | null = document.getElementsByTagName('html')[0];
-		if (html) {
-			if (value) {
-				html.className = 'dark overflow-hidden';
-			} else {
-				html.className = 'overflow-hidden'
-			}
-		}
-	}
-
 </script>
 <Modal components={modalRegistry} />
 

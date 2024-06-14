@@ -8,58 +8,15 @@
 	import QueryParamsForm from '$lib/components/QueryParamsForm.svelte';
 	import 'highlight.js/styles/srcery.css';
 	import UrlMethodInput from '$lib/components/UrlMethodInput.svelte';
-	import { basicSetup, EditorView } from 'codemirror';
-	import { EditorState } from '@codemirror/state';
-	import { keymap, lineNumbers } from '@codemirror/view';
-	import { json, jsonParseLinter } from '@codemirror/lang-json';
-	import { indentWithTab } from '@codemirror/commands';
+	import { EditorView } from 'codemirror';
 	import { onMount } from 'svelte';
-	import { linter, lintGutter } from '@codemirror/lint';
+	import { getCodeMirror } from '$lib/RequestBodyCodeMirror';
 
 	export let request: Request;
 
-	let myTheme = EditorView.theme({
-		'.cm-content .cm-gutter .cm-wrap': {
-			minHeight: '150px'
-		},
-		'&': {
-			color: '#E0E0E0',
-			backgroundColor: '#263238'
-		},
-		'.cm-content': {
-			caretColor: '#FFCC80'
-		},
-		'&.cm-focused .cm-cursor': {
-			borderLeftColor: '#FFCC80'
-		},
-		'&.cm-focused .cm-selectionBackground, ::selection': {
-			backgroundColor: '#546E7A'
-		},
-		'.cm-gutters': {
-			backgroundColor: '#37474F',
-			color: '#B0BEC5',
-			border: 'none'
-		}
-	}, { dark: true });
 	let editor: EditorView;
-	let startState = EditorState.create({
-		doc: request.body.content,
-		extensions: [
-			keymap.of([indentWithTab]),
-			json(),
-			lintGutter(),
-			linter(jsonParseLinter()),
-			lineNumbers(),
-			myTheme
-		]
-	});
 	onMount(() => {
-		editor = new EditorView({
-			state: startState,
-			value: request.body,
-			extensions: [basicSetup, keymap.of([indentWithTab])],
-			parent: document.querySelector('#body')
-		});
+		editor = getCodeMirror(request);
 	});
 
 	const toastStore = getToastStore();
