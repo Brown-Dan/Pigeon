@@ -4,6 +4,9 @@ import forms from '@tailwindcss/forms';
 import { skeleton } from '@skeletonlabs/tw-plugin'
 
 export default {
+	module: {
+		darkMode: 'selector'
+	},
 	darkMode: 'class',
 	content: ['./src/**/*.{html,js,svelte,ts}', join(require.resolve('@skeletonlabs/skeleton'), '../**/*.{html,js,svelte,ts}')],
 	theme: {

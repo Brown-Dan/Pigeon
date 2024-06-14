@@ -11,6 +11,7 @@
 	} from '@skeletonlabs/skeleton';
 	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 	import HistoryModal from '$lib/components/modals/HistoryModal.svelte';
+	import { LightSwitch } from '@skeletonlabs/skeleton';
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -51,7 +52,7 @@
 	</svelte:fragment>
 	Pigeon
 	<svelte:fragment slot="trail">
-		<SlideToggle name="slide" bind:checked={value} on:change={switch_theme} />
+		<LightSwitch />
 		<div class="btn-group variant-filled">
 			<button type="button" class="btn-sm variant-filled">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"

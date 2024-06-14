@@ -20,6 +20,7 @@
 	import { limit_chars, method_to_abb, method_to_colour } from '$lib/MethodUtils';
 	import RenameRequestModal from '$lib/components/modals/RenameRequestModal.svelte';
 	import MoveRequestModal from '$lib/components/modals/MoveRequestModal.svelte';
+	import { derived } from 'svelte/store';
 
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -272,10 +273,8 @@
 							</svg>
 						</button>
 					</svelte:fragment>
-
-
 					<span
-						class="ml-0 badge {method_to_colour.get(request.method)} mr-2 text-xs">{method_to_abb.get(request.method)}</span>
+						class="ml-0 badge { method_to_colour.get(request.method)} mr-2 text-xs">{method_to_abb.get(request.method)}</span>
 					<span class="overflow-hidden whitespace-nowrap text-sm">{limit_chars(request.name, 16)}</span>
 
 				</TreeViewItem>
