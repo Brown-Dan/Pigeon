@@ -34,13 +34,13 @@
 		close_tab(idx);
 	}
 
-	function handle_rename(event: CustomEvent) {
+	function handle_rename() {
 		request_tabs = request_tabs;
 	}
 
 </script>
 <svelte:window on:requestBarClick={handleRequestBarClick} on:deletedCollection={handle_deleted_collection} on:deletedRequest={handle_deleted_request} on:renameRequest={handle_rename}/>
-<TabGroup class="mt-5"}>
+<TabGroup }>
 	{#each request_tabs as request, i}
 		<Tab bind:group={tabSet} name="tab{i}" value={i}>{request.name}
 			<button on:click={() => close_tab(i)} type="button"

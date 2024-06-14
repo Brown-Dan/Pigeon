@@ -7,18 +7,16 @@ import { linter, lintGutter } from '@codemirror/lint';
 import type { Request } from '$lib/Models';
 
 let myTheme = EditorView.theme({
-	'.cm-content .cm-gutter .cm-wrap': {
-		minHeight: '150px'
-	},
 	'&': {
+		fontSize: "10pt",
 		color: '#E0E0E0',
 		backgroundColor: '#263238'
 	},
-	'.cm-content': {
-		caretColor: '#FFCC80'
-	},
 	'&.cm-focused .cm-cursor': {
 		borderLeftColor: '#FFCC80'
+	},
+	'.cm-content': {
+		caretColor: '#FFCC80'
 	},
 	'&.cm-focused .cm-selectionBackground, ::selection': {
 		backgroundColor: '#546E7A'
