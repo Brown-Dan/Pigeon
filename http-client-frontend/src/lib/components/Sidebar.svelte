@@ -13,7 +13,7 @@
 		TreeViewItem
 	} from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
-	import type { CollectionMap, Collections, Request } from '$lib/Models';
+	import { type CollectionMap, isOrphan, type Request } from '$lib/Models';
 	import AddCollectionModal from '$lib/components/modals/AddCollectionModal.svelte';
 	import AddRequestModal from '$lib/components/modals/AddRequestModal.svelte';
 	import { limit_chars, method_to_abb, method_to_colour } from '$lib/MethodUtils';
@@ -25,12 +25,6 @@
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
 	initializeStores();
-
-	let collections: Collections;
-
-	collections_store.subscribe((value) => {
-		collections = value;
-	});
 
 	const modalStore = getModalStore();
 	let selected_collection: String;
@@ -119,7 +113,7 @@
 			if (r === true) {
 				invoke('delete_request', { request: selected_request });
 				collections_store.update((value) => {
-					if (selected_request.collection_name === 'orphan') {
+					if (isOrphan(selected_request)) {
 						value.orphan_requests.delete(selected_request.name);
 					} else {
 						let collection: CollectionMap | undefined = value.collections.get(selected_request.collection_name);
@@ -161,7 +155,7 @@
 		open_tabs_store.update((value) => {
 			if (value.filter(req => req === request).length === 0) {
 				value.push(request);
-				tab_number_store.update(value => value += 1)
+				tab_number_store.update(value => value += 1);
 			}
 			return value;
 		});
@@ -237,9 +231,9 @@
 	</div>
 </div>
 <div class="overflow-y-auto overscroll-none mb-5 overflow-x-hidden">
-	{#if collections}
+	{#if $collections_store}
 		<TreeView class="hidden lg:block text-xs">
-			{#each Array.from(collections.collections) as [collection_name, collection]}
+			{#each Array.from($collections_store.collections) as [collection_name, collection]}
 				<TreeViewItem class="my-0.5">
 					<svelte:fragment slot="lead">
 						<button on:click={() => selected_collection = collection_name} use:popup={collectionSettingsPopup}>
@@ -278,7 +272,7 @@
 					</svelte:fragment>
 				</TreeViewItem>
 			{/each}
-			{#each Array.from(collections.orphan_requests) as [request_name, request]}
+			{#each Array.from($collections_store.orphan_requests) as [request_name, request]}
 				<TreeViewItem class="my-0.5" on:click={() => open_request_tab(request)}>
 					<svelte:fragment slot="lead">
 						<button on:click={(event) => {event.stopPropagation();selected_request = request;}}
@@ -293,7 +287,6 @@
 					<span
 						class="ml-0 badge { method_to_colour.get(request.method)} mr-2 text-xs">{method_to_abb.get(request.method)}</span>
 					<span class="overflow-hidden whitespace-nowrap text-sm">{limit_chars(request_name, 16)}</span>
-
 				</TreeViewItem>
 			{/each}
 		</TreeView>

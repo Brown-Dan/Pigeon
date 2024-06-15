@@ -94,7 +94,9 @@ export function get_scratchpad(): Request {
 	};
 }
 
-
+export function isOrphan(request: Request): boolean {
+	return request.collection_name === "orphan";
+}
 
 export function duration_to_string(duration: Duration): string {
 	if (duration.nanos > 1000000000) {

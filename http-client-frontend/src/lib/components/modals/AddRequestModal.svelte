@@ -3,7 +3,7 @@
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { collections_store } from '$lib/CollectionStore';
-	import type { Request } from '$lib/Models';
+	import { isOrphan, type Request } from '$lib/Models';
 
 	export let parent: SvelteComponent;
 	const modalStore = getModalStore();
@@ -31,7 +31,7 @@
 
 		invoke('add_request', { request });
 		collections_store.update((value) => {
-			if (request.collection_name === 'orphan') {
+			if (isOrphan(request)) {
 				value.orphan_requests.set(request.name, request);
 			} else {
 				let collection = value.collections.get(request.name);

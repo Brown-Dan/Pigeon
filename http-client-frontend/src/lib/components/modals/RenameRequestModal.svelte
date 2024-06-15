@@ -3,7 +3,7 @@
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { collections_store } from '$lib/CollectionStore';
-	import type { Request } from '$lib/Models';
+	import { isOrphan, type Request } from '$lib/Models';
 	import { open_tabs_store } from '$lib/OpenTabStore';
 
 	export let parent: SvelteComponent;
@@ -15,37 +15,31 @@
 
 	function onFormSubmit(): void {
 		if ($modalStore[0].response) $modalStore[0].response(formData);
-		let new_request: Request = $modalStore[0].meta.request;
-		let original_name = new_request.name;
-		invoke('delete_request', { request: new_request });
-		new_request.name = formData.name;
-		invoke('add_request', { request: new_request });
+
+		let updated_request: Request = $modalStore[0].meta.request;
+		let original_name = updated_request.name;
+
+		invoke('delete_request', { request: updated_request });
+		updated_request.name = formData.name;
+		invoke('add_request', { request: updated_request });
+
 		collections_store.update((value) => {
-			if (new_request.collection_name === 'orphan') {
-				let request = value.orphan_requests.get(original_name);
-				if (request) {
-					request.name = new_request.name;
-				}
+			if (isOrphan(updated_request)) {
+				value.orphan_requests.get(original_name)!.name = updated_request.name;
+				console.log(value.orphan_requests.get(original_name))
 			} else {
-				let collection = value.collections.get(new_request.collection_name);
-				if (collection) {
-					let request = collection.requests.get(original_name);
-					if (request) {
-						request.name = new_request.name;
-					}
-				}
+				value.collections.get(updated_request.collection_name)!.requests.get(original_name)!.name =
+					updated_request.name;
 			}
-			value = value;
 			return value;
 		});
 		open_tabs_store.update((value) => {
 			let original_request = value.filter(request => request.name === original_name).at(0);
 			if (original_request) {
-				original_request.name = new_request.name;
+				original_request.name = updated_request.name;
 			}
 			return value;
 		})
-		window.dispatchEvent(new CustomEvent('renameRequest', { detail: (new_request.name, original_name) }));
 		modalStore.close();
 	}
 </script>
