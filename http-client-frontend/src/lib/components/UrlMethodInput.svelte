@@ -1,8 +1,7 @@
 <script lang="ts">
-	import type { Request } from '$lib/Models';
+	import type { Request } from '$lib/Models'
 
 	export let request: Request;
-
 </script>
 
 <div class="input-group input-group-divider grid-cols-[1fr_auto] mb-5">

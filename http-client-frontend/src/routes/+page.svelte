@@ -2,8 +2,7 @@
 	import RequestResponse from '$lib/components/RequestResponse.svelte';
 	import { Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import { get_scratchpad } from '$lib/Models';
-	import { current_tab_index, decrement, open_tabs } from '$lib/TabStore';
-	import { request } from '$lib/RequestStore';
+	import { open_tabs, current_tab_index, increment, decrement } from '$lib/TabStore';
 
 	function close_tab(index: number) {
 		open_tabs.update((value) => {
@@ -27,7 +26,11 @@
 	{/each}
 
 	<svelte:fragment slot="panel">
-			<RequestResponse request={$request} />
+		{#if $open_tabs.at($current_tab_index) !== undefined}
+			<RequestResponse request={$open_tabs.at($current_tab_index)} />
+		{:else}
+			<RequestResponse request={get_scratchpad()} />
+		{/if}
 	</svelte:fragment>
 </TabGroup>
 
