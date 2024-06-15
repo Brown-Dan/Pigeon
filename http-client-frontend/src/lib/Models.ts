@@ -26,6 +26,12 @@ export interface Collection {
 	requests: Request[];
 }
 
+export interface CollectionMap {
+	name: string;
+	description: string;
+	requests: Map<String, Request>;
+}
+
 export interface Requests {
 	collections: Collection[],
 	orphaned_requests: Request[]
