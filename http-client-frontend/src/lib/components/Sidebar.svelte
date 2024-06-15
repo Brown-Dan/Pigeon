@@ -13,14 +13,14 @@
 		TreeViewItem
 	} from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
-	import { type CollectionMap, isOrphan, type Request } from '$lib/Models';
+	import { type CollectionMap, deep_copy, isOrphan, type Request } from '$lib/Models';
 	import AddCollectionModal from '$lib/components/modals/AddCollectionModal.svelte';
 	import AddRequestModal from '$lib/components/modals/AddRequestModal.svelte';
 	import { limit_chars, method_to_abb, method_to_colour } from '$lib/MethodUtils';
 	import RenameRequestModal from '$lib/components/modals/RenameRequestModal.svelte';
 	import MoveRequestModal from '$lib/components/modals/MoveRequestModal.svelte';
 	import { collections_store } from '$lib/CollectionStore';
-	import { open_tabs, current_tab_index, increment } from '$lib/TabStore';
+	import { increment, open_tabs } from '$lib/TabStore';
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -135,16 +135,16 @@
 	};
 
 	function clone_request() {
-		const req_copy = { ...selected_request };
-		req_copy.name = req_copy.name + ' clone';
-		invoke('add_request', { request: req_copy });
+		const request_copy =  deep_copy(selected_request);
+		request_copy.name = request_copy.name + ' clone';
+		invoke('add_request', { request: request_copy });
 		collections_store.update((value) => {
-			if (req_copy.collection_name === 'orphan') {
-				value.orphan_requests.set(req_copy.name, req_copy);
+			if (isOrphan(request_copy)) {
+				value.orphan_requests.set(request_copy.name, request_copy);
 			} else {
-				let collection = value.collections.get(req_copy.collection_name);
+				let collection = value.collections.get(request_copy.collection_name);
 				if (collection) {
-					collection.requests.set(req_copy.name, req_copy);
+					collection.requests.set(request_copy.name, request_copy);
 				}
 			}
 			return value;
