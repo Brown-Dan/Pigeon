@@ -2,14 +2,14 @@
 	import '../app.postcss';
 	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 	import { initializeStores, storePopup, Toast } from '@skeletonlabs/skeleton';
-	import { invoke } from '@tauri-apps/api/tauri';
 	import type { Requests } from '$lib/Models';
 	import { requests } from '$lib/RequestsStore';
-	import { onMount } from 'svelte';
 	import Header from '$lib/components/Header.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
+
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 	initializeStores();
+
 	let requests_result: Requests;
 
 	requests.subscribe((value) => {
