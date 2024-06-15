@@ -25,11 +25,11 @@
 
 		collections_store.update((value) => {
 			if (isOrphan(updated_request)) {
-				value.orphan_requests.get(original_name)!.name = updated_request.name;
-				console.log(value.orphan_requests.get(original_name))
+				value.orphan_requests.delete(original_name);
+				value.orphan_requests.set(updated_request.name, updated_request);
 			} else {
-				value.collections.get(updated_request.collection_name)!.requests.get(original_name)!.name =
-					updated_request.name;
+				value.collections.get(updated_request.collection_name)!.requests.delete(original_name);
+				value.collections.get(updated_request.collection_name)!.requests.set(updated_request.name, updated_request);
 			}
 			return value;
 		});
