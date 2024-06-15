@@ -2,19 +2,12 @@
 	import '../app.postcss';
 	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 	import { initializeStores, storePopup, Toast } from '@skeletonlabs/skeleton';
-	import type { Collections } from '$lib/Models';
-	import { collections_store } from '$lib/CollectionStore';
 	import Header from '$lib/components/Header.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 	initializeStores();
 
-	let collections: Collections;
-
-	collections_store.subscribe((value) => {
-		collections = value;
-	});
 </script>
 
 <Toast />
