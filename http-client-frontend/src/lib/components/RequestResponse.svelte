@@ -104,6 +104,7 @@
 
 <div class="grid grid-cols-10 min-h-max m-5">
 	<div class="mt-16 col-span-4">
+		<p>{request.method}</p>
 		<UrlMethodInput {request} />
 		<TabGroup>
 			<Tab bind:group={current_tab} name="tab1" value={0}>Body</Tab>
