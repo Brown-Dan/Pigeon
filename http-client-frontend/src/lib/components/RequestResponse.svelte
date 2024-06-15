@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { invoke } from '@tauri-apps/api/tauri';
-	import { getToastStore, SlideToggle, Tab, TabGroup, type ToastSettings } from '@skeletonlabs/skeleton';
+	import { getToastStore, SlideToggle, Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import ResponseView from './ResponseView.svelte';
 	import { requests } from '$lib/RequestsStore';
 	import type { Header, Request, Response } from '$lib/Models';
@@ -8,84 +8,24 @@
 	import QueryParamsForm from '$lib/components/QueryParamsForm.svelte';
 	import 'highlight.js/styles/srcery.css';
 	import UrlMethodInput from '$lib/components/UrlMethodInput.svelte';
-	import { basicSetup, EditorView } from 'codemirror';
-	import { EditorState } from '@codemirror/state';
-	import { keymap, lineNumbers } from '@codemirror/view';
-	import { json, jsonParseLinter } from '@codemirror/lang-json';
-	import { indentWithTab } from '@codemirror/commands';
+	import {
+		get_failure_formatting_json_notification,
+		get_failure_to_send_request_notification,
+		get_request_sent_notification
+	} from '$lib/Toasts';
+	import { EditorView } from 'codemirror';
 	import { onMount } from 'svelte';
-	import { linter, lintGutter } from '@codemirror/lint';
+	import { getCodeMirror } from '$lib/RequestBodyCodeMirror';
 
 	export let request: Request;
 
-	let myTheme = EditorView.theme({
-		'.cm-content .cm-gutter .cm-wrap': {
-			minHeight: '150px'
-		},
-		'&': {
-			color: '#E0E0E0',
-			backgroundColor: '#263238'
-		},
-		'.cm-content': {
-			caretColor: '#FFCC80'
-		},
-		'&.cm-focused .cm-cursor': {
-			borderLeftColor: '#FFCC80'
-		},
-		'&.cm-focused .cm-selectionBackground, ::selection': {
-			backgroundColor: '#546E7A'
-		},
-		'.cm-gutters': {
-			backgroundColor: '#37474F',
-			color: '#B0BEC5',
-			border: 'none'
-		}
-	}, { dark: true });
-	let editor: EditorView;
-	let startState = EditorState.create({
-		doc: request.body.content,
-		extensions: [
-			keymap.of([indentWithTab]),
-			json(),
-			lintGutter(),
-			linter(jsonParseLinter()),
-			lineNumbers(),
-			myTheme
-		]
-	});
-	onMount(() => {
-		editor = new EditorView({
-			state: startState,
-			value: request.body,
-			extensions: [basicSetup, keymap.of([indentWithTab])],
-			parent: document.querySelector('#body')
-		});
-	});
-
 	const toastStore = getToastStore();
-	const request_success: ToastSettings = {
-		message: '📤 Sent request',
-		timeout: 3000,
-		background: 'variant-filled-success'
-	};
 
-	function trigger_failure(message: string) {
-		const request_failure: ToastSettings = {
-			message: '😭 ' + message,
-			timeout: 3000,
-			background: 'variant-filled-primary'
-		};
-		toastStore.trigger(request_failure);
-	}
+	let editor: EditorView;
+	onMount(() => {
+		editor = getCodeMirror(request);
+	});
 
-	function cannot_format_json_error() {
-		const format_failure: ToastSettings = {
-			message: '😭 Failed to format json',
-			timeout: 3000,
-			background: 'variant-filled-primary'
-		};
-		toastStore.trigger(format_failure);
-	}
 
 	let response: Response | undefined;
 	let current_tab: number = 0;
@@ -116,7 +56,7 @@
 			.then(value => {
 				if (typeof value === 'string') {
 					if (value.includes('error sending request for url') || value.includes('Error sending Request')) {
-						trigger_failure(value);
+						toastStore.trigger(get_failure_to_send_request_notification(value));
 						pending_request = false;
 					} else {
 						let json: any = JSON.parse(value);
@@ -128,7 +68,7 @@
 							elapsed: json.elapsed,
 							content_type: json.content_type
 						};
-						toastStore.trigger(request_success);
+						toastStore.trigger(get_request_sent_notification());
 						pending_request = false;
 					}
 				}
@@ -148,7 +88,7 @@
 			update_request();
 		} catch (e) {
 			console.log(e);
-			cannot_format_json_error();
+			toastStore.trigger(get_failure_formatting_json_notification());
 		}
 	}
 

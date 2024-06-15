@@ -1,5 +1,6 @@
 import { join } from 'path'
 import type { Config } from 'tailwindcss'
+// @ts-ignore
 import forms from '@tailwindcss/forms';
 import { skeleton } from '@skeletonlabs/tw-plugin'
 
