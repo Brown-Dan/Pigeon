@@ -12,7 +12,7 @@
 		get_failure_formatting_json_notification,
 		get_failure_to_send_request_notification,
 		get_request_sent_notification
-	} from '$lib/Toasts';
+	} from '$lib/ToastService';
 	import { EditorView } from 'codemirror';
 	import { onMount } from 'svelte';
 	import { getCodeMirror } from '$lib/RequestBodyCodeMirror';

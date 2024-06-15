@@ -12,18 +12,9 @@
 	initializeStores();
 	let requests_result: Requests;
 
-	onMount(async () => {
-		try {
-			requests_result = await invoke('get_collections', {}).then((value) => <Requests>value);
-			requests.set(requests_result);
-		} catch (error) {
-			console.error('Error fetching history:', error);
-		}
-	});
 	requests.subscribe((value) => {
 		requests_result = value;
 	});
-
 </script>
 
 <Toast />
