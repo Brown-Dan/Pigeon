@@ -1,3 +1,6 @@
+// @ts-ignore
+import { _ } from 'lodash';
+
 export interface Request {
 	name: string;
 	url: string;
@@ -24,6 +27,17 @@ export interface Collection {
 	name: string;
 	description: string;
 	requests: Request[];
+}
+
+export interface Collections {
+	collections: Map<String, CollectionMap>,
+	orphan_requests: Map<String, Request>
+}
+
+export interface CollectionMap {
+	name: string;
+	description: string;
+	requests: Map<String, Request>;
 }
 
 export interface Requests {
@@ -72,17 +86,28 @@ export function get_scratchpad(): Request {
 	return {
 		name: 'scratchpad',
 		url: 'https://example.com',
-		method: "GET",
-		collection_name: "scratchpad",
+		method: 'GET',
+		collection_name: 'scratchpad',
 		headers: [],
 		query_params: [],
 		body: {
-			content: "{}",
+			content: '{}',
 			enabled: false
 		}
 	};
 }
 
+export function deep_copy(request: Request): Request {
+	return _.cloneDeep(request);
+}
+
+export function isOrphan(request: Request): boolean {
+	return request.collection_name === 'orphan';
+}
+
+export function isNotScratchpad(request: Request): boolean {
+	return request.collection_name !== "scratchpad";
+}
 export function duration_to_string(duration: Duration): string {
 	if (duration.nanos > 1000000000) {
 		return duration + 's';

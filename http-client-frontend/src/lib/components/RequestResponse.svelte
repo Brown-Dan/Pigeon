@@ -2,7 +2,7 @@
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { getToastStore, SlideToggle, Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import ResponseView from './ResponseView.svelte';
-	import { requests } from '$lib/RequestsStore';
+	import { collections_store } from '$lib/CollectionStore';
 	import type { Header, Request, Response } from '$lib/Models';
 	import HeadersForm from '$lib/components/HeadersForm.svelte';
 	import QueryParamsForm from '$lib/components/QueryParamsForm.svelte';
@@ -12,12 +12,20 @@
 		get_failure_formatting_json_notification,
 		get_failure_to_send_request_notification,
 		get_request_sent_notification
-	} from '$lib/Toasts';
+	} from '$lib/ToastService';
 	import { EditorView } from 'codemirror';
 	import { onMount } from 'svelte';
 	import { getCodeMirror } from '$lib/RequestBodyCodeMirror';
+	import { current_tab_index, open_tabs } from '$lib/TabStore';
 
 	export let request: Request;
+
+	function updateRequest(updatedRequest: Request) {
+			open_tabs.update(value => {
+				value[$current_tab_index] = updatedRequest;
+				return value;
+			});
+	}
 
 	const toastStore = getToastStore();
 
@@ -33,9 +41,9 @@
 
 	function update_request() {
 		request.body.content = editor.state.doc.toString();
-		requests.subscribe(value => {
-			value.orphaned_requests.forEach(r => invoke('add_request', { request: r }));
-			value.collections.forEach(c => c.requests.forEach(r => invoke('add_request', { request: r })));
+		collections_store.subscribe(value => {
+			value.orphan_requests.forEach(request => invoke('add_request', { request }));
+			value.collections.forEach(collection => collection.requests.forEach(request => invoke('add_request', { request })));
 		});
 	}
 
@@ -101,10 +109,10 @@
 		}
 	}
 </script>
-
+<p>{request.method}</p>
 <div class="grid grid-cols-10 min-h-max m-5">
 	<div class="mt-16 col-span-4">
-		<UrlMethodInput {request} />
+		<UrlMethodInput bind:request on:update={e => updateRequest(e.detail)} />
 		<TabGroup>
 			<Tab bind:group={current_tab} name="tab1" value={0}>Body</Tab>
 			<Tab bind:group={current_tab} name="tab2" value={1}>Parameters</Tab>
