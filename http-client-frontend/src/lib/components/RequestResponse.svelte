@@ -2,7 +2,7 @@
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { getToastStore, SlideToggle, Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import ResponseView from './ResponseView.svelte';
-	import { requests } from '$lib/RequestsStore';
+	import { collections_store } from '$lib/CollectionStore';
 	import type { Header, Request, Response } from '$lib/Models';
 	import HeadersForm from '$lib/components/HeadersForm.svelte';
 	import QueryParamsForm from '$lib/components/QueryParamsForm.svelte';
@@ -33,9 +33,9 @@
 
 	function update_request() {
 		request.body.content = editor.state.doc.toString();
-		requests.subscribe(value => {
-			value.orphaned_requests.forEach(r => invoke('add_request', { request: r }));
-			value.collections.forEach(c => c.requests.forEach(r => invoke('add_request', { request: r })));
+		collections_store.subscribe(value => {
+			value.orphan_requests.forEach(request => invoke('add_request', { request }));
+			value.collections.forEach(collection => collection.requests.forEach(request => invoke('add_request', { request })));
 		});
 	}
 

@@ -2,16 +2,16 @@
 	import type { SvelteComponent } from 'svelte';
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
-	import { requests } from '$lib/RequestsStore';
-	import type { Request, Requests } from '$lib/Models';
+	import { collections_store } from '$lib/CollectionStore';
+	import type { CollectionMap, Collections, Request } from '$lib/Models';
 
 	export let parent: SvelteComponent;
 	const modalStore = getModalStore();
 
-	let request_results: Requests;
+	let collections: Collections;
 
-	requests.subscribe((value) => {
-		request_results = value;
+	collections_store.subscribe((value) => {
+		collections = value;
 	});
 
 	const formData = {
@@ -20,35 +20,35 @@
 
 	function onFormSubmit(): void {
 		if ($modalStore[0].response) $modalStore[0].response(formData);
-		let req: Request = $modalStore[0].meta.request;
-		let original_collection = req.collection_name;
-		invoke('delete_request', { request: req });
-		req.collection_name = formData.collection_name;
-		invoke('add_request', { request: req });
-		requests.update((value) => {
-			if (original_collection === 'orphan') {
-				let idx = value.orphaned_requests.map(r => r.name).indexOf(req.name);
-				value.orphaned_requests.splice(idx, 1);
-				value.orphaned_requests = value.orphaned_requests.filter(Boolean);
-			} else {
-				let col: Request[] = value.collections.filter(c => c.name === original_collection)[0].requests
-				let idx = col.map(r => r.name).indexOf(req.name)
-				col.splice(idx, 1)
-				col = col;
-			}
+		let request: Request = $modalStore[0].meta.request;
 
-			if (req.collection_name === 'orphan') {
-				value.orphaned_requests.push(req);
-				value.orphaned_requests = value.orphaned_requests;
+		let original_collection_name = request.collection_name;
+		invoke('delete_request', { request: request });
+
+		request.collection_name = formData.collection_name;
+		invoke('add_request', { request: request })
+
+		collections_store.update((value) => {
+			if (original_collection_name === 'orphan') {
+				value.orphan_requests.delete(request.name)
 			} else {
-				console.log(value.collections);
-				console.log(req.collection_name);
-				value.collections.filter(c => c.name === req.collection_name)[0].requests.push(req);
-				value.collections = value.collections;
+				let collection: CollectionMap | undefined = value.collections.get(original_collection_name);
+				if (collection) {
+					collection.requests.delete(request.name)
+				}
 			}
+			if (request.collection_name === 'orphan') {
+				value.orphan_requests.set(request.name, request);
+			} else {
+				let collection: CollectionMap | undefined = value.collections.get(request.collection_name);
+				if (collection) {
+					collection.requests.set(request.name, request)
+				}
+			}
+			value = value;
 			return value;
 		});
-		window.dispatchEvent(new CustomEvent('renameRequest', { detail: (req.name, original_collection) }));
+		window.dispatchEvent(new CustomEvent('renameRequest', { detail: (request.name, original_collection_name) }));
 		modalStore.close();
 	}
 
@@ -67,8 +67,8 @@
 			<p>Current Collection:  {map_collection_name($modalStore[0].meta.request.collection_name)}</p>
 			<select bind:value={formData.collection_name} class="select mr-5 mt-5 ml-2 p-2 lg:inline-block" id="method">
 				<option value="orphan">No collection</option>
-				{#each request_results.collections as collection}
-					<option value={collection.name}>{collection.name}</option>
+				{#each Array.from(collections.collections) as [collection_name, collection]}
+					<option value={collection_name}>{collection_name}</option>
 				{/each}
 			</select>
 		</form>

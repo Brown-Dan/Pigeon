@@ -26,6 +26,11 @@ export interface Collection {
 	requests: Request[];
 }
 
+export interface Collections {
+	collections: Map<String, CollectionMap>,
+	orphan_requests: Map<String, Request>
+}
+
 export interface CollectionMap {
 	name: string;
 	description: string;
@@ -88,6 +93,8 @@ export function get_scratchpad(): Request {
 		}
 	};
 }
+
+
 
 export function duration_to_string(duration: Duration): string {
 	if (duration.nanos > 1000000000) {

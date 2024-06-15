@@ -13,26 +13,28 @@
 		TreeViewItem
 	} from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
-	import type { Request, Requests } from '$lib/Models';
+	import type { CollectionMap, Collections, Request } from '$lib/Models';
 	import AddCollectionModal from '$lib/components/modals/AddCollectionModal.svelte';
-	import { requests } from '$lib/RequestsStore';
 	import AddRequestModal from '$lib/components/modals/AddRequestModal.svelte';
 	import { limit_chars, method_to_abb, method_to_colour } from '$lib/MethodUtils';
 	import RenameRequestModal from '$lib/components/modals/RenameRequestModal.svelte';
 	import MoveRequestModal from '$lib/components/modals/MoveRequestModal.svelte';
-	import { derived } from 'svelte/store';
-
+	import { collections_store } from '$lib/CollectionStore';
+	import { open_tabs_store } from '$lib/OpenTabStore';
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
 	initializeStores();
 
-	export let requests_result: Requests;
+	let collections: Collections;
+
+	collections_store.subscribe((value) => {
+		collections = value;
+	});
 
 	const modalStore = getModalStore();
 	let selected_collection: String;
 	let selected_request: Request;
-
 
 	const modalRegistry: Record<string, ModalComponent> = {
 		addCollectionModal: { ref: AddCollectionModal },
@@ -64,9 +66,9 @@
 		const moveRequestModal: ModalSettings = {
 			type: 'component',
 			component: 'moveRequestModal',
-			meta: {request: selected_request}
+			meta: { request: selected_request }
 		};
-		modalStore.trigger(moveRequestModal)
+		modalStore.trigger(moveRequestModal);
 	}
 
 	async function add_request() {
@@ -91,14 +93,20 @@
 		type: 'confirm',
 		title: 'Please Confirm',
 		body: 'Are you sure you wish to proceed with deleting collection?',
-		response: (r: boolean) => {
-			if (r === true) {
+		response: (response: boolean) => {
+			if (response) {
 				invoke('delete_collection', { collectionName: selected_collection });
-				requests.update((value) => {
-					value.collections = value.collections.filter(collection => collection.name !== selected_collection);
+				collections_store.update((value) => {
+					value.collections.delete(selected_collection);
 					return value;
 				});
-				window.dispatchEvent(new CustomEvent('deletedCollection', { detail: selected_collection }));
+				open_tabs_store.update((value) => {
+					let index = value.map(req => req.collection_name).indexOf(selected_collection.toString());
+					if (index !== -1) {
+						value.splice(index, 1);
+					}
+					return value;
+				});
 			}
 		}
 	};
@@ -110,20 +118,24 @@
 		response: (r: boolean) => {
 			if (r === true) {
 				invoke('delete_request', { request: selected_request });
-				requests.update((value) => {
+				collections_store.update((value) => {
 					if (selected_request.collection_name === 'orphan') {
-						value.orphaned_requests = value.orphaned_requests.filter(r => r.name !== selected_request.name);
-						return value;
+						value.orphan_requests.delete(selected_request.name);
 					} else {
-						let v = value.collections.map(collection => collection.name).indexOf(selected_request.collection_name, 0);
-						let c = value.collections.at(v);
-						if (c) {
-							c.requests = c.requests.filter(r => r.name !== selected_request.name);
+						let collection: CollectionMap | undefined = value.collections.get(selected_request.collection_name);
+						if (collection) {
+							collection.requests.delete(selected_request.name);
 						}
-						return value;
 					}
+					return value;
 				});
-				window.dispatchEvent(new CustomEvent('deletedRequest', { detail: selected_request.name }));
+				open_tabs_store.update((value) => {
+					let index = value.map(req => req.name).indexOf(selected_request.name);
+					if (index !== -1) {
+						value.splice(index, 1);
+					}
+					return value;
+				});
 			}
 		}
 	};
@@ -132,14 +144,13 @@
 		const req_copy = { ...selected_request };
 		req_copy.name = req_copy.name + ' clone';
 		invoke('add_request', { request: req_copy });
-		requests.update((value) => {
+		collections_store.update((value) => {
 			if (req_copy.collection_name === 'orphan') {
-				value.orphaned_requests.push(req_copy);
+				value.orphan_requests.set(req_copy.name, req_copy);
 			} else {
-				let idx = value.collections.map(collection => collection.name).indexOf(selected_request.collection_name, 0);
-				let c = value.collections.at(idx);
-				if (c) {
-					c.requests.push(req_copy);
+				let collection = value.collections.get(req_copy.collection_name);
+				if (collection) {
+					collection.requests.set(req_copy.name, req_copy);
 				}
 			}
 			return value;
@@ -147,7 +158,12 @@
 	}
 
 	function open_request_tab(request: Request) {
-		window.dispatchEvent(new CustomEvent('requestBarClick', { detail: request }));
+		open_tabs_store.update((value) => {
+			if (value.filter(req => req === request).length === 0) {
+				value.push(request);
+			}
+			return value;
+		});
 	}
 
 	async function delete_request() {
@@ -220,12 +236,12 @@
 	</div>
 </div>
 <div class="overflow-y-auto overscroll-none mb-5 overflow-x-hidden">
-	{#if requests_result}
+	{#if collections}
 		<TreeView class="hidden lg:block text-xs">
-			{#each requests_result.collections as collection}
+			{#each Array.from(collections.collections) as [collection_name, collection]}
 				<TreeViewItem class="my-0.5">
 					<svelte:fragment slot="lead">
-						<button on:click={() => selected_collection = collection.name} use:popup={collectionSettingsPopup}>
+						<button on:click={() => selected_collection = collection_name} use:popup={collectionSettingsPopup}>
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
 									 stroke="currentColor" class="size-6">
 								<path stroke-linecap="round" stroke-linejoin="round"
@@ -234,10 +250,10 @@
 						</button>
 					</svelte:fragment>
 					<div class="flex items-center justify-between">
-						<span class="flex items-center whitespace-nowrap overflow-hidden text-sm">{collection.name}</span>
+						<span class="flex items-center whitespace-nowrap overflow-hidden text-sm">{collection_name}</span>
 					</div>
 					<svelte:fragment slot="children">
-						{#each collection.requests as request}
+						{#each Array.from(collection.requests) as [request_name, request]}
 							<TreeViewItem class="my-0.5" on:click={() => open_request_tab(request)}>
 								<svelte:fragment slot="lead">
 									<button on:click={(event) => {event.stopPropagation(); selected_request = request;}}
@@ -253,7 +269,7 @@
 									<div class="flex items-center">
 										<span
 											class="badge {method_to_colour.get(request.method)} mr-2 text-xs">{method_to_abb.get(request.method)}</span>
-										<span class="overflow-hidden whitespace-nowrap text-sm">{limit_chars(request.name, 16)}</span>
+										<span class="overflow-hidden whitespace-nowrap text-sm">{limit_chars(request_name, 16)}</span>
 									</div>
 								</div>
 							</TreeViewItem>
@@ -261,7 +277,7 @@
 					</svelte:fragment>
 				</TreeViewItem>
 			{/each}
-			{#each requests_result.orphaned_requests as request}
+			{#each Array.from(collections.orphan_requests) as [request_name, request]}
 				<TreeViewItem class="my-0.5" on:click={() => open_request_tab(request)}>
 					<svelte:fragment slot="lead">
 						<button on:click={(event) => {event.stopPropagation();selected_request = request;}}
@@ -275,7 +291,7 @@
 					</svelte:fragment>
 					<span
 						class="ml-0 badge { method_to_colour.get(request.method)} mr-2 text-xs">{method_to_abb.get(request.method)}</span>
-					<span class="overflow-hidden whitespace-nowrap text-sm">{limit_chars(request.name, 16)}</span>
+					<span class="overflow-hidden whitespace-nowrap text-sm">{limit_chars(request_name, 16)}</span>
 
 				</TreeViewItem>
 			{/each}

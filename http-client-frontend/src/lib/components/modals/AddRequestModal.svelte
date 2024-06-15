@@ -2,7 +2,7 @@
 	import type { SvelteComponent } from 'svelte';
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
-	import { requests } from '$lib/RequestsStore';
+	import { collections_store } from '$lib/CollectionStore';
 	import type { Request } from '$lib/Models';
 
 	export let parent: SvelteComponent;
@@ -16,7 +16,7 @@
 
 	function onFormSubmit(): void {
 		if ($modalStore[0].response) $modalStore[0].response(formData);
-		let new_request: Request = {
+		let request: Request = {
 			name: formData.name,
 			url: formData.url,
 			method: formData.method,
@@ -24,17 +24,20 @@
 			headers: [],
 			query_params: [],
 			body: {
-				content: "{}",
+				content: '{}',
 				enabled: false
 			}
 		};
 
-		invoke('add_request', { request: new_request });
-		requests.update((value) => {
-			if (new_request.collection_name === 'orphan') {
-				value.orphaned_requests.push(new_request);
+		invoke('add_request', { request });
+		collections_store.update((value) => {
+			if (request.collection_name === 'orphan') {
+				value.orphan_requests.set(request.name, request);
 			} else {
-				value.collections.filter(c => c.name === new_request.collection_name)[0].requests.push(new_request);
+				let collection = value.collections.get(request.name);
+				if (collection) {
+					collection.requests.set(request.name, request);
+				}
 			}
 			return value;
 		});

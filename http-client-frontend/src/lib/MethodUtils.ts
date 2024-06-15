@@ -14,9 +14,10 @@ export const method_to_abb: Map<string, string> = new Map([
 	["PATCH", "PTC"]
 ])
 
-export function limit_chars(name: string, limit: number): string {
+export function limit_chars(name: String, limit: number): string {
 	if (name.length > limit) {
 		return name.substring(0, limit).trimEnd() + "...";
 	}
+	// @ts-ignore
 	return name;
 }
