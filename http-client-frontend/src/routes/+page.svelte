@@ -2,13 +2,13 @@
 	import RequestResponse from '$lib/components/RequestResponse.svelte';
 	import { Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import { get_scratchpad } from '$lib/Models';
-	import { open_tabs, current_tab_index, increment, decrement } from '$lib/TabStore';
+	import { current_tab_index, decrement, open_tabs } from '$lib/TabStore';
 
-	function close_tab(index: number) {
-		open_tabs.update((value) => {
-			value.splice(index, 1);
+	function close_tab(tab_index: number) {
+		open_tabs.update((tabs) => {
+			tabs.splice(tab_index, 1);
 			decrement();
-			return value;
+			return tabs;
 		});
 	}
 </script>
@@ -24,13 +24,8 @@
 			</button>
 		</Tab>
 	{/each}
-
 	<svelte:fragment slot="panel">
-		{#if $open_tabs.at($current_tab_index) !== undefined}
-			<RequestResponse request={$open_tabs.at($current_tab_index)} />
-		{:else}
-			<RequestResponse request={get_scratchpad()} />
-		{/if}
+		<RequestResponse request={$open_tabs.at($current_tab_index) ?? get_scratchpad()} />
 	</svelte:fragment>
 </TabGroup>
 

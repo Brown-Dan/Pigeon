@@ -3,7 +3,7 @@
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { collections_store } from '$lib/CollectionStore';
-	import type { Collection, CollectionMap } from '$lib/Models';
+	import type { CollectionMap } from '$lib/Models';
 
 	export let parent: SvelteComponent;
 	const modalStore = getModalStore();
@@ -15,16 +15,16 @@
 
 	function onFormSubmit(): void {
 		if ($modalStore[0].response) $modalStore[0].response(formData);
-		invoke("add_collection", {config: {name: formData.name, description: formData.description} })
+		invoke('add_collection', { config: { name: formData.name, description: formData.description } });
 		let collection: CollectionMap = {
 			name: formData.name,
 			description: formData.description,
 			requests: new Map()
-		}
+		};
 		collections_store.update((value) => {
-			value.collections.set(collection.name, collection)
+			value.collections.set(collection.name, collection);
 			return value;
-		})
+		});
 		modalStore.close();
 	}
 </script>
@@ -39,7 +39,8 @@
 			</label>
 			<label class="label">
 				<span>Description</span>
-				<input class="input" type="tel" bind:value={formData.description} placeholder="Enter collection description..." />
+				<input class="input" type="tel" bind:value={formData.description}
+							 placeholder="Enter collection description..." />
 			</label>
 		</form>
 		<footer class="modal-footer {parent.regionFooter}">

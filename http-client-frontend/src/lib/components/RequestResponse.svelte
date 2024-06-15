@@ -16,8 +16,16 @@
 	import { EditorView } from 'codemirror';
 	import { onMount } from 'svelte';
 	import { getCodeMirror } from '$lib/RequestBodyCodeMirror';
+	import { current_tab_index, open_tabs } from '$lib/TabStore';
 
 	export let request: Request;
+
+	function updateRequest(updatedRequest: Request) {
+			open_tabs.update(value => {
+				value[$current_tab_index] = updatedRequest;
+				return value;
+			});
+	}
 
 	const toastStore = getToastStore();
 
@@ -101,10 +109,10 @@
 		}
 	}
 </script>
-
+<p>{request.method}</p>
 <div class="grid grid-cols-10 min-h-max m-5">
 	<div class="mt-16 col-span-4">
-		<UrlMethodInput {request} />
+		<UrlMethodInput bind:request on:update={e => updateRequest(e.detail)} />
 		<TabGroup>
 			<Tab bind:group={current_tab} name="tab1" value={0}>Body</Tab>
 			<Tab bind:group={current_tab} name="tab2" value={1}>Parameters</Tab>

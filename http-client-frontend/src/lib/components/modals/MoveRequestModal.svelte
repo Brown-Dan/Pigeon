@@ -26,15 +26,15 @@
 		invoke('delete_request', { request: request });
 
 		request.collection_name = formData.collection_name;
-		invoke('add_request', { request: request })
+		invoke('add_request', { request: request });
 
 		collections_store.update((value) => {
 			if (original_collection_name === 'orphan') {
-				value.orphan_requests.delete(request.name)
+				value.orphan_requests.delete(request.name);
 			} else {
 				let collection: CollectionMap | undefined = value.collections.get(original_collection_name);
 				if (collection) {
-					collection.requests.delete(request.name)
+					collection.requests.delete(request.name);
 				}
 			}
 			if (request.collection_name === 'orphan') {
@@ -42,7 +42,7 @@
 			} else {
 				let collection: CollectionMap | undefined = value.collections.get(request.collection_name);
 				if (collection) {
-					collection.requests.set(request.name, request)
+					collection.requests.set(request.name, request);
 				}
 			}
 			value = value;
