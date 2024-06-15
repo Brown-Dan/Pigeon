@@ -20,7 +20,7 @@
 	import RenameRequestModal from '$lib/components/modals/RenameRequestModal.svelte';
 	import MoveRequestModal from '$lib/components/modals/MoveRequestModal.svelte';
 	import { collections_store } from '$lib/CollectionStore';
-	import { open_tabs_store, tab_number_store } from '$lib/OpenTabStore';
+	import { open_tabs, current_tab_index, increment } from '$lib/TabStore';
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -94,7 +94,7 @@
 					value.collections.delete(selected_collection);
 					return value;
 				});
-				open_tabs_store.update((value) => {
+				open_tabs.update((value) => {
 					let index = value.map(req => req.collection_name).indexOf(selected_collection.toString());
 					if (index !== -1) {
 						value.splice(index, 1);
@@ -123,7 +123,7 @@
 					}
 					return value;
 				});
-				open_tabs_store.update((value) => {
+				open_tabs.update((value) => {
 					let index = value.map(req => req.name).indexOf(selected_request.name);
 					if (index !== -1) {
 						value.splice(index, 1);
@@ -152,10 +152,10 @@
 	}
 
 	function open_request_tab(request: Request) {
-		open_tabs_store.update((value) => {
+		open_tabs.update((value) => {
 			if (value.filter(req => req === request).length === 0) {
 				value.push(request);
-				tab_number_store.update(value => value += 1);
+				increment();
 			}
 			return value;
 		});

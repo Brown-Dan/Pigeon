@@ -2,20 +2,19 @@
 	import RequestResponse from '$lib/components/RequestResponse.svelte';
 	import { Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import { get_scratchpad } from '$lib/Models';
-	import { open_tabs_store, tab_number_store } from '$lib/OpenTabStore';
+	import { open_tabs, current_tab_index, increment, decrement } from '$lib/TabStore';
 
 	function close_tab(index: number) {
-		open_tabs_store.update((value) => {
+		open_tabs.update((value) => {
 			value.splice(index, 1);
-			tab_number_store.update(value => value -= 1);
+			decrement();
 			return value;
 		});
 	}
 </script>
-
 <TabGroup }>
-	{#each $open_tabs_store as request, i}
-		<Tab bind:group={$tab_number_store} name="tab{i}" value={i}>{request.name}
+	{#each $open_tabs as request, i}
+		<Tab bind:group={$current_tab_index} name="tab{i}" value={i}>{request.name}
 			<button on:click={() => close_tab(i)} type="button"
 							class="bg-white rounded-md p-2 inline-flex items-center justify-center text-black hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
 				<svg class="h-2 w-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -27,8 +26,8 @@
 	{/each}
 
 	<svelte:fragment slot="panel">
-		{#if $open_tabs_store.at($tab_number_store) !== undefined}
-			<RequestResponse request={$open_tabs_store.at($tab_number_store)} />
+		{#if $open_tabs.at($current_tab_index) !== undefined}
+			<RequestResponse request={$open_tabs.at($current_tab_index)} />
 		{:else}
 			<RequestResponse request={get_scratchpad()} />
 		{/if}

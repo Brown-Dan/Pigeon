@@ -4,7 +4,7 @@
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { collections_store } from '$lib/CollectionStore';
 	import { isOrphan, type Request } from '$lib/Models';
-	import { open_tabs_store } from '$lib/OpenTabStore';
+	import { open_tabs } from '$lib/TabStore';
 
 	export let parent: SvelteComponent;
 	const modalStore = getModalStore();
@@ -33,7 +33,7 @@
 			}
 			return value;
 		});
-		open_tabs_store.update((value) => {
+		open_tabs.update((value) => {
 			let original_request = value.filter(request => request.name === original_name).at(0);
 			if (original_request) {
 				original_request.name = updated_request.name;
