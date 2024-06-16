@@ -48,7 +48,6 @@
 			value = value;
 			return value;
 		});
-		window.dispatchEvent(new CustomEvent('renameRequest', { detail: (request.name, original_collection_name) }));
 		modalStore.close();
 	}
 
@@ -67,7 +66,7 @@
 			<p>Current Collection:  {map_collection_name($modalStore[0].meta.request.collection_name)}</p>
 			<select bind:value={formData.collection_name} class="select mr-5 mt-5 ml-2 p-2 lg:inline-block" id="method">
 				<option value="orphan">No collection</option>
-				{#each Array.from(collections.collections) as [collection_name, collection]}
+				{#each Array.from(collections.collections) as [collection_name, _collection]}
 					<option value={collection_name}>{collection_name}</option>
 				{/each}
 			</select>
