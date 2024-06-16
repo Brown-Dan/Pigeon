@@ -16,4 +16,4 @@
 1. You must have Rust installed - `$ curl https://sh.rustup.rs -sSf | sh`
 2. You must have Tauri CLI installed - `npm install @tauri-apps/cli`
 
-once inside the main *http-client-frontend* directory, you can run the command - `npm run tauri dev` to start the application.
+once inside the main *pigeon* directory, you can run the command - `npm run tauri dev` to start the application.
