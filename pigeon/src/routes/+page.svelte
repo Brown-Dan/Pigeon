@@ -7,7 +7,9 @@
 	function close_tab(tab_index: number) {
 		open_tabs.update((tabs) => {
 			tabs.splice(tab_index, 1);
-			decrement();
+			if ($current_tab_index > 0 || $open_tabs.length === 0) {
+				decrement();
+			}
 			return tabs;
 		});
 	}
