@@ -18,6 +18,11 @@
 	import { getCodeMirror } from '$lib/RequestBodyCodeMirror';
 	import { current_tab_index, open_tabs } from '$lib/TabStore';
 	import { response } from '$lib/ResponseStore';
+	import hotkeys from 'hotkeys-js';
+
+	hotkeys('cmd+enter', send_request);
+	hotkeys('cmd+l', format_body);
+	hotkeys('cmd+b', toggle_body);
 
 	export let request: Request;
 
@@ -81,6 +86,10 @@
 					}
 				}
 			});
+	}
+
+	function toggle_body() {
+		request.body.enabled = !request.body.enabled
 	}
 
 	function format_body() {
