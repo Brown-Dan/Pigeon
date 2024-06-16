@@ -3,7 +3,7 @@
 	import { getToastStore, SlideToggle, Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import ResponseView from './ResponseView.svelte';
 	import { collections_store } from '$lib/CollectionStore';
-	import type { Header, Request, Response } from '$lib/Models';
+	import type { Header, QueryParam, Request, Response } from '$lib/Models';
 	import HeadersForm from '$lib/components/HeadersForm.svelte';
 	import QueryParamsForm from '$lib/components/QueryParamsForm.svelte';
 	import 'highlight.js/styles/srcery.css';
@@ -108,10 +108,29 @@
 			editor.dispatch(transaction);
 		}
 	}
+
+	function get_url_preview(baseUrl: string, queryParams: QueryParam[]): string {
+		let url = new URL(baseUrl);
+		queryParams.filter(param => param.enabled).forEach(param => {
+			url.searchParams.set(param.name, param.value);
+		});
+
+		return url.toString();
+	}
+
+	let url_preview = request.url;
+	$: {
+		url_preview = get_url_preview(request.url, request.query_params)
+	}
+
 </script>
 <div class="grid grid-cols-10 min-h-max m-5">
 	<div class="mt-16 col-span-4">
 		<UrlMethodInput bind:request on:update={e => updateRequest(e.detail)} />
+		<div class="card text-left outline-black p-0">
+			<header class="card-header text-center">URL Preview</header>
+			<section class="p-4">	{url_preview}</section>
+		</div>
 		<TabGroup>
 			<Tab bind:group={current_tab} name="tab1" value={0}>Body</Tab>
 			<Tab bind:group={current_tab} name="tab2" value={1}>Parameters</Tab>
@@ -128,10 +147,10 @@
 					</div>
 				</div>
 				<div hidden={current_tab !== 1}>
-					<QueryParamsForm {request} />
+					<QueryParamsForm bind:request />
 				</div>
 				<div hidden={current_tab !== 2}>
-					<HeadersForm {request} />
+					<HeadersForm bind:request />
 				</div>
 				<div hidden={current_tab !== 4}>
 					Scripts
