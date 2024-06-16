@@ -125,10 +125,10 @@
 
 </script>
 <div class="grid grid-cols-10 min-h-max m-5">
-	<div class="mt-16 col-span-4">
+	<div class="col-span-4 mr-2">
 		<UrlMethodInput bind:request on:update={e => updateRequest(e.detail)} />
-		<div class="card text-left outline-black p-0">
-			<header class="card-header text-center">URL Preview</header>
+		<div class="m-0 mb-2 card text-left outline-black p-0">
+			<header class="card-header text-center"><b>URL Preview</b></header>
 			<section class="p-4">	{url_preview}</section>
 		</div>
 		<TabGroup>
