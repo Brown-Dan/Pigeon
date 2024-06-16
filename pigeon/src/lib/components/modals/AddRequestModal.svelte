@@ -34,7 +34,7 @@
 			if (isOrphan(request)) {
 				value.orphan_requests.set(request.name, request);
 			} else {
-				let collection = value.collections.get(request.name);
+				let collection = value.collections.get(request.collection_name);
 				if (collection) {
 					collection.requests.set(request.name, request);
 				}
