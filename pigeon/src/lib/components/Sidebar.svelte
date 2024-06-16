@@ -20,7 +20,7 @@
 	import RenameRequestModal from '$lib/components/modals/RenameRequestModal.svelte';
 	import MoveRequestModal from '$lib/components/modals/MoveRequestModal.svelte';
 	import { collections_store } from '$lib/CollectionStore';
-	import { increment, open_tabs } from '$lib/TabStore';
+	import { current_tab_index, increment, open_tabs } from '$lib/TabStore';
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -156,6 +156,8 @@
 			if (value.filter(req => req === request).length === 0) {
 				value.push(request);
 				increment();
+			} else {
+				current_tab_index.set($open_tabs.indexOf(request))
 			}
 			return value;
 		});
