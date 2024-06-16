@@ -109,7 +109,6 @@
 		}
 	}
 </script>
-<p>{$current_tab_index}</p>
 <div class="grid grid-cols-10 min-h-max m-5">
 	<div class="mt-16 col-span-4">
 		<UrlMethodInput bind:request on:update={e => updateRequest(e.detail)} />
