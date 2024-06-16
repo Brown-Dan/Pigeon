@@ -4,9 +4,13 @@
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { collections_store } from '$lib/CollectionStore';
 	import { isOrphan, type Request } from '$lib/Models';
+	import hotkeys from 'hotkeys-js';
 
 	export let parent: SvelteComponent;
 	const modalStore = getModalStore();
+
+	hotkeys('cmd+enter', onFormSubmit);
+
 
 	const formData = {
 		name: '',

@@ -2,7 +2,23 @@
 	import RequestResponse from '$lib/components/RequestResponse.svelte';
 	import { Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import { get_scratchpad } from '$lib/Models';
-	import { current_tab_index, decrement, open_tabs } from '$lib/TabStore';
+	import { current_tab_index, decrement, increment, open_tabs } from '$lib/TabStore';
+	import hotkeys from 'hotkeys-js';
+
+	hotkeys('cmd+left', left_tab);
+	hotkeys('cmd+right', right_tab);
+
+	function left_tab() {
+		if ($current_tab_index > 0) {
+			decrement();
+		}
+	}
+
+	function right_tab() {
+		if ($current_tab_index < $open_tabs.length - 1) {
+			increment();
+		}
+	}
 
 	function close_tab(tab_index: number) {
 		open_tabs.update((tabs) => {
