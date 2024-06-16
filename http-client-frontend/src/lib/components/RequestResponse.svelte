@@ -17,6 +17,7 @@
 	import { onMount } from 'svelte';
 	import { getCodeMirror } from '$lib/RequestBodyCodeMirror';
 	import { current_tab_index, open_tabs } from '$lib/TabStore';
+	import { response } from '$lib/ResponseStore';
 
 	export let request: Request;
 
@@ -34,8 +35,6 @@
 		editor = getCodeMirror(request);
 	});
 
-
-	let response: Response | undefined;
 	let current_tab: number = 0;
 	let pending_request = false;
 
@@ -68,7 +67,7 @@
 						pending_request = false;
 					} else {
 						let json: any = JSON.parse(value);
-						response = {
+						let new_response: Response = {
 							status: json.status,
 							size: json.size,
 							body: json.content_type.includes('application/json') ? JSON.stringify(JSON.parse(json.body), null, 2) : json.body,
@@ -76,6 +75,7 @@
 							elapsed: json.elapsed,
 							content_type: json.content_type
 						};
+						response.update(value => value.set(request.name, new_response))
 						toastStore.trigger(get_request_sent_notification());
 						pending_request = false;
 					}
@@ -154,8 +154,8 @@
 		</button>
 	</div>
 	<div class="col-span-6">
-		{#if response !== undefined}
-			<ResponseView {response} />
+		{#if $response.get(request.name) !== undefined}
+			<ResponseView response={$response.get(request.name)} />
 		{:else}
 			<div class="card m-5 p-4 text-white text-xl text-center">
 				<section class="p-4">
