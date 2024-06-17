@@ -1,6 +1,20 @@
 // @ts-ignore
 import { _ } from 'lodash';
 
+export interface Environments {
+	environments: Environment[]
+}
+
+export interface Environment {
+	name: String,
+	values: EnvironmentValue[]
+}
+
+export interface EnvironmentValue {
+	name: String,
+	value: String
+}
+
 export interface Request {
 	name: string;
 	url: string;

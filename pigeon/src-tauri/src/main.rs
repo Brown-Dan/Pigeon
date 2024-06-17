@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use crate::model::{AddCollectionRequest, History, Request, Requests, Response};
+use crate::model::{AddCollectionRequest, Environments, History, Request, Requests, Response};
 
 mod file_service;
 mod request_service;
@@ -9,7 +9,7 @@ mod model;
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_collections, send_request, add_collection, get_history, delete_collection, add_request, delete_request])
+        .invoke_handler(tauri::generate_handler![get_collections, send_request, add_collection, get_history, delete_collection, add_request, delete_request, get_environments])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -51,4 +51,9 @@ fn add_request(request: Request) {
 #[tauri::command]
 fn delete_request(request: Request) {
     file_service::delete_request(request);
+}
+
+#[tauri::command]
+fn get_environments() -> Environments {
+    file_service::get_environments()
 }

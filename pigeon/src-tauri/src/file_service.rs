@@ -5,16 +5,28 @@ use std::io::Error;
 use std::path::PathBuf;
 #[allow(unused_imports)]
 use std::time::SystemTime;
-use reqwest::get;
 
 #[allow(unused_imports)]
 use crate::model::{AddCollectionRequest, Collection, HistoricRequest, History, Request, Requests};
+use crate::model::Environments;
 use crate::Response;
 
 fn get_history_path() -> PathBuf {
     let mut path: PathBuf = get_pigeon_path();
     path.push("history.pigeon");
     return path;
+}
+
+pub fn get_environments() -> Environments {
+    let mut path = get_pigeon_path();
+    path.push("environments.pigeon");
+    if !path.exists() {
+          fs::write(&path, "").unwrap()
+    }
+    fs::read(&path).map_or(Environments { environments : Vec::new() },
+    |environments_as_byes| {
+        serde_json::from_str(&*String::from_utf8(environments_as_byes).unwrap()).unwrap()
+    })
 }
 
 pub fn get_history() -> History {
@@ -38,6 +50,7 @@ fn build_historic_request(request: &Request, response: &Response) -> HistoricReq
         speed: response.elapsed,
     };
 }
+
 #[cfg(not(test))]
 pub fn add_history(request: Request, response: &Response) {
     let history_path: PathBuf = get_history_path();
@@ -177,6 +190,7 @@ fn get_pigeon_path() -> PathBuf {
     path_buf.push("Pigeon");
     return path_buf;
 }
+
 #[allow(dead_code)]
 fn delete_history() {
     let path = get_history_path();

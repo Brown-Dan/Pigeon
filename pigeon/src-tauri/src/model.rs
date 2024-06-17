@@ -1,5 +1,23 @@
 use std::time::{Duration, SystemTime};
+
 use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Environments {
+    pub(crate) environments: Vec<Environment>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Environment {
+    pub(crate) name: String,
+    pub(crate) values: Vec<EnvironmentValue>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct EnvironmentValue {
+    pub(crate) name: String,
+    pub(crate) value: String,
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Request {
@@ -8,14 +26,14 @@ pub struct Request {
     pub(crate) method: RequestMethod,
     pub(crate) collection_name: String,
     pub(crate) headers: Vec<Header>,
-    pub(crate) query_params: Vec<QueryParam>, 
-    pub(crate) body: Body
+    pub(crate) query_params: Vec<QueryParam>,
+    pub(crate) body: Body,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Body {
     pub(crate) content: String,
-    pub(crate) enabled: bool
+    pub(crate) enabled: bool,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
@@ -25,7 +43,7 @@ pub struct Response {
     pub(crate) body: String,
     pub(crate) headers: Vec<Header>,
     pub(crate) elapsed: Duration,
-    pub(crate) content_type: String
+    pub(crate) content_type: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
