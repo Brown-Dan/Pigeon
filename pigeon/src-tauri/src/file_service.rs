@@ -21,12 +21,12 @@ pub fn get_environments() -> Environments {
     let mut path = get_pigeon_path();
     path.push("environments.pigeon");
     if !path.exists() {
-          fs::write(&path, "").unwrap()
+        fs::write(&path, "").unwrap()
     }
-    fs::read(&path).map_or(Environments { environments : Vec::new() },
-    |environments_as_byes| {
-        serde_json::from_str(&*String::from_utf8(environments_as_byes).unwrap()).unwrap()
-    })
+    fs::read(&path).map_or(Environments { environments: Vec::new() },
+                           |environments_as_byes| {
+                               serde_json::from_str(&*String::from_utf8(environments_as_byes).unwrap()).unwrap()
+                           })
 }
 
 pub fn get_history() -> History {
@@ -123,7 +123,9 @@ pub fn get_files() -> Requests {
     for result in res {
         let entry: DirEntry = result.unwrap();
         if entry.file_type().unwrap().is_file() {
-            if entry.file_name().eq("history.pigeon") || entry.file_name().eq("scratchpad.pigeon") {
+            if entry.file_name().eq("history.pigeon") || entry.file_name().eq("scratchpad.pigeon") ||
+                entry.file_name().eq("environments.pigeon")
+            {
                 continue;
             }
             let deserialized_req: Result<String, Error> = fs::read_to_string(entry.path());

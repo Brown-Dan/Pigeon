@@ -21,6 +21,7 @@
 	import MoveRequestModal from '$lib/components/modals/MoveRequestModal.svelte';
 	import { collections_store } from '$lib/CollectionStore';
 	import { change_tab_index, current_tab_index, increment, open_tabs } from '$lib/TabStore';
+	import { current_environment, environments_store } from '$lib/EnvironmentStore';
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -193,12 +194,11 @@
 	</div>
 	<div class="arrow bg-surface-100-800-token" />
 </div>
-
 <div class="overflow-hidden">
-	<select class="select mr-5 mt-5 ml-2 p-2 text-xs hidden lg:inline-block w-24" id="method">
-		<option value="GET">LOCAL</option>
-		<option value="PUT">PREPROD</option>
-		<option value="PATCH">PROD</option>
+	<select bind:value={$current_environment.name} class="select mr-5 mt-5 ml-2 p-2 text-xs hidden lg:inline-block w-24" id="method">
+		{#each Array.from($environments_store) as [name, data] }
+			<option value={name}>{name}</option>
+		{/each}
 	</select>
 
 	<div class="ml-2 btn-group variant-filled mt-4 hidden lg:inline-block">

@@ -19,6 +19,7 @@
 	import { current_tab_index, open_tabs } from '$lib/TabStore';
 	import { response } from '$lib/ResponseStore';
 	import hotkeys from 'hotkeys-js';
+	import { environments_store } from '$lib/EnvironmentStore';
 
 	hotkeys('cmd+enter', send_request);
 	hotkeys('cmd+l', format_body);
@@ -27,12 +28,11 @@
 	export let request: Request;
 
 	function updateRequest(updatedRequest: Request) {
-			open_tabs.update(value => {
-				value[$current_tab_index] = updatedRequest;
-				return value;
-			});
+		open_tabs.update(value => {
+			value[$current_tab_index] = updatedRequest;
+			return value;
+		});
 	}
-
 	const toastStore = getToastStore();
 
 	let editor: EditorView;
@@ -80,7 +80,7 @@
 							elapsed: json.elapsed,
 							content_type: json.content_type
 						};
-						response.update(value => value.set(request.name, new_response))
+						response.update(value => value.set(request.name, new_response));
 						toastStore.trigger(get_request_sent_notification());
 						pending_request = false;
 					}
@@ -89,7 +89,7 @@
 	}
 
 	function toggle_body() {
-		request.body.enabled = !request.body.enabled
+		request.body.enabled = !request.body.enabled;
 	}
 
 	function format_body() {
@@ -127,22 +127,21 @@
 			return url.toString();
 		} catch (e) {
 			// TODO - url cannot be parsed at this point - crashes application
-			return "";
+			return '';
 		}
 	}
 
 	let url_preview = request.url;
 	$: {
-		url_preview = get_url_preview(request.url, request.query_params)
+		url_preview = get_url_preview(request.url, request.query_params);
 	}
-
 </script>
 <div class="grid grid-cols-10 min-h-max m-5">
 	<div class="col-span-4 mr-2">
 		<UrlMethodInput bind:request on:update={e => updateRequest(e.detail)} />
 		<div class="m-0 mb-2 card text-left outline-black p-0">
 			<header class="card-header text-center"><b>URL Preview</b></header>
-			<section class="p-4">	{url_preview}</section>
+			<section class="p-4">  {url_preview}</section>
 		</div>
 		<TabGroup>
 			<Tab bind:group={current_tab} name="tab1" value={0}>Body</Tab>

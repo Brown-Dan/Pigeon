@@ -96,6 +96,13 @@ export interface Body {
 	enabled: boolean
 }
 
+export function get_default_environment(): Environment {
+	return {
+		name: "No Environment",
+		values: []
+	}
+}
+
 export function get_scratchpad(): Request {
 	return {
 		name: 'scratchpad',
