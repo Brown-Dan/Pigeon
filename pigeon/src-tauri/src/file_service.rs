@@ -161,7 +161,7 @@ fn deserialize_collection(collection_config: String, requests: Vec<String>) -> C
     requests.iter().for_each(|item| {
         mapped_requests.push(serde_json::from_str(item).unwrap());
     });
-    let config: HashMap<String, String> = serde_json::from_str(&*collection_config).unwrap();
+    let config: HashMap<String, String> = serde_json::from_str(&collection_config).unwrap();
 
     return Collection {
         name: config.get("name").unwrap().to_string(),
