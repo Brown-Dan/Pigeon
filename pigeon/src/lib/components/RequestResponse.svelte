@@ -119,12 +119,16 @@
 	}
 
 	function get_url_preview(baseUrl: string, queryParams: QueryParam[]): string {
-		let url = new URL(baseUrl);
-		queryParams.filter(param => param.enabled).forEach(param => {
-			url.searchParams.set(param.name, param.value);
-		});
-
-		return url.toString();
+		try {
+			let url = new URL(baseUrl);
+			queryParams.filter(param => param.enabled).forEach(param => {
+				url.searchParams.set(param.name, param.value);
+			});
+			return url.toString();
+		} catch (e) {
+			// TODO - url cannot be parsed at this point - crashes application
+			return "";
+		}
 	}
 
 	let url_preview = request.url;
@@ -133,6 +137,7 @@
 	}
 
 </script>
+<p>{$current_tab_index}</p>
 <div class="grid grid-cols-10 min-h-max m-5">
 	<div class="col-span-4 mr-2">
 		<UrlMethodInput bind:request on:update={e => updateRequest(e.detail)} />
