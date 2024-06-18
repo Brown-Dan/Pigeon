@@ -13,8 +13,11 @@ export function map_url_to_environment_variable(url: String): string {
 // Using match to extract all occurrences
 	const matches = url.match(pattern);
 
+	url.replaceAll(pattern, "")
+
 // Processing the matches to remove the curly braces
 	const result = matches ? matches.map(match => match.slice(1, -1)) : [];
+
 	let url_mapped: string = "";
 	result.forEach(value => {
 		let idx = env.values.map(val => val.name).indexOf(value, 0)

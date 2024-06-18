@@ -24,8 +24,8 @@ pub fn get_environments() -> Environments {
         fs::write(&path, "").unwrap()
     }
     fs::read(&path).map_or(Environments { environments: Vec::new() },
-                           |environments_as_byes| {
-                               serde_json::from_str(&*String::from_utf8(environments_as_byes).unwrap()).unwrap()
+                           |environments_as_bytes| {
+                               serde_json::from_str(&*String::from_utf8(environments_as_bytes).unwrap()).unwrap()
                            })
 }
 
