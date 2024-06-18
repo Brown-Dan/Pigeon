@@ -13,7 +13,6 @@ fn main() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-
 #[tauri::command]
 async fn send_request(request: Request) -> String {
     let response = request_service::send_request(request).await;
