@@ -193,8 +193,7 @@ fn get_pigeon_path() -> PathBuf {
     return path_buf;
 }
 
-#[allow(dead_code)]
-fn delete_history() {
+pub fn delete_history() {
     let path = get_history_path();
     fs::write(path, "").unwrap();
 }

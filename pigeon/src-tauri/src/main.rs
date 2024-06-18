@@ -9,7 +9,7 @@ mod model;
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_collections, send_request, add_collection, get_history, delete_collection, add_request, delete_request, get_environments])
+        .invoke_handler(tauri::generate_handler![get_collections, send_request, add_collection, get_history, delete_collection, add_request, delete_request, get_environments, delete_history])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -56,4 +56,9 @@ fn delete_request(request: Request) {
 #[tauri::command]
 fn get_environments() -> Environments {
     file_service::get_environments()
+}
+
+#[tauri::command]
+fn delete_history() {
+    file_service::delete_history();
 }
