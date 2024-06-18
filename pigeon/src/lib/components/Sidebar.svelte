@@ -173,6 +173,15 @@
 		collectionSettingsPopup.closeQuery;
 		modalStore.trigger(confirmDeleteModal);
 	}
+
+	function change_environment() {
+		current_environment.update((value) => {
+			console.log(value)
+			value = $environments_store.get(value.name)!
+			console.log(value)
+			return value
+		})
+	}
 </script>
 <Modal components={modalRegistry} />
 
@@ -195,7 +204,7 @@
 	<div class="arrow bg-surface-100-800-token" />
 </div>
 <div class="overflow-hidden">
-	<select bind:value={$current_environment.name} class="select mr-5 mt-5 ml-2 p-2 text-xs hidden lg:inline-block w-24" id="method">
+	<select bind:value={$current_environment.name} on:change={change_environment} class="select mr-5 mt-5 ml-2 p-2 text-xs hidden lg:inline-block w-24" id="method">
 		{#each Array.from($environments_store) as [name, data] }
 			<option value={name}>{name}</option>
 		{/each}

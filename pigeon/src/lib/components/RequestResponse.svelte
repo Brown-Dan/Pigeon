@@ -19,7 +19,8 @@
 	import { current_tab_index, open_tabs } from '$lib/TabStore';
 	import { response } from '$lib/ResponseStore';
 	import hotkeys from 'hotkeys-js';
-	import { environments_store } from '$lib/EnvironmentStore';
+	import { current_environment, environments_store } from '$lib/EnvironmentStore';
+	import { map_url_to_environment_variable } from '$lib/EnvironmentVariableRequestParser';
 
 	hotkeys('cmd+enter', send_request);
 	hotkeys('cmd+l', format_body);
@@ -136,6 +137,8 @@
 		url_preview = get_url_preview(request.url, request.query_params);
 	}
 </script>
+<p>{$current_environment.name}</p>
+	<button on:click={() => map_url_to_environment_variable(request.url)}>{map_url_to_environment_variable(request.url)}</button>
 <div class="grid grid-cols-10 min-h-max m-5">
 	<div class="col-span-4 mr-2">
 		<UrlMethodInput bind:request on:update={e => updateRequest(e.detail)} />
