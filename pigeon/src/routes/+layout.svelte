@@ -4,19 +4,24 @@
 	import { initializeStores, storePopup, Toast } from '@skeletonlabs/skeleton';
 	import Header from '$lib/components/Header.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
+	import { onMount } from 'svelte';
+	import { autoModeWatcher } from '@skeletonlabs/skeleton';
+
+	onMount(() => {
+		autoModeWatcher();
+	});
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 	initializeStores();
-
 </script>
 
 <Toast />
 <Header />
-<div class="grid grid-cols-10 gap-2 h-screen overflow-hidden">
-	<div class="col-span-2 overflow-y-auto h-screen overscroll-none p-2">
+<div class="flex h-screen flex-row gap-2 overflow-hidden">
+	<div class="flex h-screen w-full flex-col overflow-y-auto overscroll-none p-2">
 		<Sidebar />
-	</div>
-	<div class="col-span-8 overflow-y-auto h-screen overscroll-none">
-		<slot />
+		<div>
+			<slot />
+		</div>
 	</div>
 </div>
