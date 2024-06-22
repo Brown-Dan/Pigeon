@@ -11,6 +11,7 @@
 	} from '@skeletonlabs/skeleton';
 	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 	import HistoryModal from '$lib/components/modals/HistoryModal.svelte';
+	import hotkeys from 'hotkeys-js';
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 

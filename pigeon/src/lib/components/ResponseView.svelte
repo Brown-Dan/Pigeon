@@ -14,9 +14,9 @@
 	let response_format: string = "json";
 	let current_tab_index: number = 0;
 </script>
-<div class="m-5">
+<div>
 	<div>
-		<select bind:value={response_format} class="select mr-1 mt-5 ml-2 p-2 text-xs hidden lg:inline-block w-24" id="format">
+		<select bind:value={response_format} class="select mr-1 ml-2 p-2 text-xs hidden lg:inline-block w-24" id="format">
 			<option value="json">JSON</option>
 			<option value="html">HTML</option>
 			<option value="text">TEXT</option>

@@ -3,7 +3,7 @@
 	import { getToastStore, SlideToggle, Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import ResponseView from './ResponseView.svelte';
 	import { collections_store } from '$lib/CollectionStore';
-	import type { Header, Request, Response } from '$lib/Models';
+	import type { Header, QueryParam, Request, Response } from '$lib/Models';
 	import HeadersForm from '$lib/components/HeadersForm.svelte';
 	import QueryParamsForm from '$lib/components/QueryParamsForm.svelte';
 	import 'highlight.js/styles/srcery.css';
@@ -18,7 +18,12 @@
 	import { getCodeMirror } from '$lib/RequestBodyCodeMirror';
 	import { current_tab_index, open_tabs } from '$lib/TabStore';
 	import { response } from '$lib/ResponseStore';
+	import hotkeys from 'hotkeys-js';
 	import { Send } from 'lucide-svelte';
+
+	hotkeys('cmd+enter', send_request);
+	hotkeys('cmd+l', format_body);
+	hotkeys('cmd+b', toggle_body);
 
 	export let request: Request;
 
@@ -104,6 +109,10 @@
 		});
 	}
 
+	function toggle_body() {
+		request.body.enabled = !request.body.enabled;
+	}
+
 	function format_body() {
 		try {
 			const transaction = editor.state.update({
@@ -129,11 +138,35 @@
 			editor.dispatch(transaction);
 		}
 	}
+
+	function get_url_preview(baseUrl: string, queryParams: QueryParam[]): string {
+		try {
+			let url = new URL(baseUrl);
+			queryParams
+				.filter((param) => param.enabled)
+				.forEach((param) => {
+					url.searchParams.set(param.name, param.value);
+				});
+			return url.toString();
+		} catch (e) {
+			// TODO - url cannot be parsed at this point - crashes application
+			return '';
+		}
+	}
+
+	let url_preview = request.url;
+	$: {
+		url_preview = get_url_preview(request.url, request.query_params);
+	}
 </script>
 
 <div class="m-5 grid min-h-max grid-cols-10">
-	<div class="col-span-4 mt-16">
+	<div class="col-span-4 mr-2">
 		<UrlMethodInput bind:request on:update={(e) => updateRequest(e.detail)} />
+		<div class="card m-0 mb-2 p-0 text-left outline-black">
+			<header class="card-header text-center"><b>URL Preview</b></header>
+			<section class="p-4">{url_preview}</section>
+		</div>
 		<TabGroup>
 			<Tab bind:group={current_tab} name="tab1" value={0}>Body</Tab>
 			<Tab bind:group={current_tab} name="tab2" value={1}>Parameters</Tab>
@@ -155,10 +188,10 @@
 					</div>
 				</div>
 				<div hidden={current_tab !== 1}>
-					<QueryParamsForm {request} />
+					<QueryParamsForm bind:request />
 				</div>
 				<div hidden={current_tab !== 2}>
-					<HeadersForm {request} />
+					<HeadersForm bind:request />
 				</div>
 				<div hidden={current_tab !== 4}>Scripts</div>
 			</svelte:fragment>
