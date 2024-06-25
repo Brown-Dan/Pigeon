@@ -160,7 +160,7 @@
 	}
 </script>
 
-<div class="m-5 grid min-h-max grid-cols-10">
+<div class="m-5 grid min-h-max grid-cols-10 overflow-y-auto">
 	<div class="col-span-4 mr-2">
 		<UrlMethodInput bind:request on:update={(e) => updateRequest(e.detail)} />
 		<div class="card m-0 mb-2 p-0 text-left outline-black">
@@ -201,7 +201,7 @@
 			<span class="font-bold">{pending_request ? 'Sending' : 'Send'}</span>
 		</button>
 	</div>
-	<div class="col-span-6">
+	<div class="col-span-6 overflow-y-auto">
 		{#if $response.get(request.name) !== undefined}
 			<ResponseView response={$response.get(request.name) || defaultResponse} />
 		{:else}
@@ -210,6 +210,8 @@
 					<kbd class="kbd">⌘ + Enter</kbd> to send a request.
 					<br />
 					<kbd class="kbd">⌘ + E</kbd> to edit environment.
+					<br>
+					<kbd class="kbd">⌘ + O</kbd> to toggle collections.
 				</section>
 			</div>
 		{/if}

@@ -44,7 +44,7 @@
 			<button
 				on:click={() => delete_header(index)}
 				type="button"
-				class="variant-filled btn-icon mr-2"
+				class="btn-icon mr-2"
 			>
 				<Trash2 size="12" />
 			</button>

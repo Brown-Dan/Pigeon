@@ -14,7 +14,7 @@
 	let response_format: string = "json";
 	let current_tab_index: number = 0;
 </script>
-<div>
+<div class="overflow-y-auto">
 	<div>
 		<select bind:value={response_format} class="select mr-1 ml-2 p-2 text-xs hidden lg:inline-block w-24" id="format">
 			<option value="json">JSON</option>

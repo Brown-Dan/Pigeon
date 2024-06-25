@@ -110,7 +110,8 @@ pub fn get_files() -> Requests {
     for result in res {
         let entry: DirEntry = result.unwrap();
         if entry.file_type().unwrap().is_file() {
-            if entry.file_name().eq("history.pigeon") || entry.file_name().eq("scratchpad.pigeon") {
+            if entry.file_name().eq("history.pigeon") || entry.file_name().eq("scratchpad.pigeon") ||
+                entry.file_name().eq("environments.pigeon"){
                 continue;
             }
             let deserialized_req: Result<String, Error> = fs::read_to_string(entry.path());

@@ -1,11 +1,10 @@
 <script lang="ts">
 	import '../app.postcss';
 	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
-	import { initializeStores, storePopup, Toast } from '@skeletonlabs/skeleton';
+	import { autoModeWatcher, initializeStores, storePopup, Toast } from '@skeletonlabs/skeleton';
 	import Header from '$lib/components/Header.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
 	import { onMount } from 'svelte';
-	import { autoModeWatcher } from '@skeletonlabs/skeleton';
 
 	onMount(() => {
 		autoModeWatcher();
@@ -16,12 +15,14 @@
 </script>
 
 <Toast />
-<Header />
-<div class="flex h-screen flex-row gap-2 overflow-hidden">
-	<div class="flex h-screen w-full flex-col overflow-y-auto overscroll-none p-2">
+<div class="flex h-screen flex-col overflow-hidden">
+	<div class="flex-none h-min mb-1 overflow-y-auto">
+		<Header />
+	</div>
+	<div class="flex-none min-h-min max-h-4/20 overflow-y-hidden">
 		<Sidebar />
-		<div>
-			<slot />
-		</div>
+	</div>
+	<div class="flex-grow overflow-y-hidden">
+		<slot />
 	</div>
 </div>

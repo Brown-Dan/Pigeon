@@ -21,7 +21,10 @@
 	import MoveRequestModal from '$lib/components/modals/MoveRequestModal.svelte';
 	import { collections_store } from '$lib/CollectionStore';
 	import { change_tab_index, current_tab_index, increment, open_tabs } from '$lib/TabStore';
-	import { FileCog, FilePlus, FolderClosed, FolderPlus, Globe, Info } from 'lucide-svelte';
+	import { FileCog, FilePlus, FolderClosed, FolderPlus, Globe, Info, Menu } from 'lucide-svelte';
+	import hotkeys from 'hotkeys-js';
+
+	hotkeys("cmd+o", toggle_sidebar)
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -177,6 +180,13 @@
 		collectionSettingsPopup.closeQuery;
 		modalStore.trigger(confirmDeleteModal);
 	}
+
+	function toggle_sidebar() {
+		let collections = document.getElementById("collections");
+		if (collections) {
+			collections.hidden = !collections.hidden;
+		}
+	}
 </script>
 
 <Modal components={modalRegistry} />
@@ -200,7 +210,7 @@
 	<div class="bg-surface-100-800-token arrow" />
 </div>
 
-<div class="flex items-center overflow-hidden">
+<div class="flex items-center overflow-hidden mb-2">
 	<select class="select ml-2 mr-5 mt-5 hidden w-24 p-2 text-xs md:flex" id="method">
 		<option value="GET">LOCAL</option>
 		<option value="PUT">PREPROD</option>
@@ -220,9 +230,12 @@
 		<button>
 			<Info />
 		</button>
+		<button on:click={() => toggle_sidebar()}>
+			<Menu />
+		</button>
 	</div>
 </div>
-<div class="mb-5 overflow-y-auto overflow-x-hidden overscroll-none">
+<div id="collections" hidden="" class="mb-2 overflow-y-auto overflow-x-hidden overscroll-none max-h-80">
 	{#if $collections_store}
 		<TreeView class="hidden text-xs lg:block">
 			{#each Array.from($collections_store.collections) as [collection_name, collection]}
@@ -260,7 +273,7 @@
 											>{method_to_abb.get(request.method)}</span
 										>
 										<span class="overflow-hidden whitespace-nowrap text-sm"
-											>{limit_chars(request_name, 16)}</span
+											>{request_name}</span
 										>
 									</div>
 								</div>
@@ -286,7 +299,7 @@
 						>{method_to_abb.get(request.method)}</span
 					>
 					<span class="overflow-hidden whitespace-nowrap text-sm"
-						>{limit_chars(request_name, 16)}</span
+						>{request_name}</span
 					>
 				</TreeViewItem>
 			{/each}
