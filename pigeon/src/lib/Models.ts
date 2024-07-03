@@ -17,12 +17,6 @@ export interface QueryParam {
 	enabled: boolean;
 }
 
-export interface Header {
-	name: string;
-	value: string;
-	enabled: boolean;
-}
-
 export interface Collection {
 	name: string;
 	description: string;
@@ -30,8 +24,8 @@ export interface Collection {
 }
 
 export interface Collections {
-	collections: Map<String, CollectionMap>,
-	orphan_requests: Map<String, Request>
+	collections: Map<String, CollectionMap>;
+	orphan_requests: Map<String, Request>;
 }
 
 export interface CollectionMap {
@@ -41,8 +35,8 @@ export interface CollectionMap {
 }
 
 export interface Requests {
-	collections: Collection[],
-	orphaned_requests: Request[]
+	collections: Collection[];
+	orphaned_requests: Request[];
 }
 
 export interface History {
@@ -59,27 +53,33 @@ export interface HistoricRequest {
 }
 
 export interface SinceEpochTime {
-	secs_since_epoch: number,
-	nanos_since_epoch: number
+	secs_since_epoch: number;
+	nanos_since_epoch: number;
 }
 
 export interface Duration {
-	secs: number,
-	nanos: number
+	secs: number;
+	nanos: number;
+}
+
+export interface Header {
+	name: string;
+	value: string;
+	enabled: boolean;
 }
 
 export interface Response {
-	status: string,
-	size: string,
-	body: string,
-	headers: Header[],
-	elapsed: Duration,
-	content_type: string
+	status: string;
+	size: string;
+	body: string;
+	headers: Header[];
+	elapsed: Duration;
+	content_type: string;
 }
 
 export interface Body {
-	content: string,
-	enabled: boolean
+	content: string;
+	enabled: boolean;
 }
 
 export function get_scratchpad(): Request {
@@ -106,7 +106,7 @@ export function isOrphan(request: Request): boolean {
 }
 
 export function isNotScratchpad(request: Request): boolean {
-	return request.collection_name !== "scratchpad";
+	return request.collection_name !== 'scratchpad';
 }
 export function duration_to_string(duration: Duration): string {
 	if (duration.nanos > 1000000000) {
