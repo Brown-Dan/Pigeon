@@ -1,107 +1,108 @@
 use std::collections::HashMap;
 use std::str::FromStr;
+use std::sync::Arc;
 use std::time::{Duration, Instant};
 
+use lazy_static::lazy_static;
+
 use reqwest::header::{HeaderMap, HeaderName};
-use reqwest::RequestBuilder;
 
 use crate::file_service;
 use crate::model::{Header, QueryParam, Request, RequestMethod, Response};
 
+lazy_static! {
+    static ref CLIENT: Arc<reqwest::Client> = Arc::new(reqwest::Client::new());
+}
+
+fn get_client() -> Arc<reqwest::Client> {
+    Arc::clone(&CLIENT)
+}
+
 pub async fn send_request(request: Request) -> Option<Response> {
     let now = Instant::now();
-    let result = match &request.method {
-        RequestMethod::GET => build_request(&request, get(&request.url)).send().await,
-        RequestMethod::POST => build_request(&request, post(&request.url)).send().await,
-        RequestMethod::DELETE => build_request(&request, delete(&request.url)).send().await,
-        RequestMethod::PATCH => build_request(&request, patch(&request.url)).send().await,
-        RequestMethod::PUT => build_request(&request, put(&request.url)).send().await
+
+    let request_to_send = {
+        let req = get_client()
+            .request(request.get_reqwest_method(), &request.url)
+            .query(&map_query_param_vec_to_hashmap(&request.query_params))
+            .headers(map_header_vec_to_header_map(&request.headers))
+            .timeout(Duration::from_secs(30));
+
+        if request.body.enabled {
+            req.body(request.body.content.clone())
+        } else {
+            req
+        }
     };
+
+    let result = request_to_send.send().await;
     let elapsed = now.elapsed();
 
-    let response = match result {
-        Ok(response) => response,
-        _err => return None,
-    };
+    let result: Option<Response> = async {
+        match result {
+            Ok(response) => Some(map_response(response, elapsed).await),
+            Err(_) => None,
+        }
+    }.await;
 
-    let mapped_response = map_response(response, elapsed).await;
-    file_service::add_history(request, &mapped_response);
-    return Some(mapped_response);
-}
-
-fn get(url: &String) -> RequestBuilder {
-    return reqwest::Client::new().get(url);
-}
-
-fn post(url: &String) -> RequestBuilder {
-    return reqwest::Client::new().post(url);
-}
-
-fn delete(url: &String) -> RequestBuilder {
-    return reqwest::Client::new().delete(url);
-}
-
-fn patch(url: &String) -> RequestBuilder {
-    return reqwest::Client::new().patch(url);
-}
-
-fn put(url: &String) -> RequestBuilder {
-    return reqwest::Client::new().put(url);
-}
-
-fn build_request(request: &Request, request_builder: RequestBuilder) -> RequestBuilder {
-    let request_builder = request_builder
-        .query(&map_query_param_vec_to_hashmap(&request.query_params))
-        .headers(map_header_vec_to_header_map(&request.headers))
-        .timeout(Duration::from_secs(30));
-
-    if request.body.enabled {
-        return request_builder.body(request.body.content.clone());
-    }
-    return request_builder;
+    result.inspect(|response| file_service::add_history(request, &response))
 }
 
 async fn map_response(response: reqwest::Response, duration: Duration) -> Response {
     let headers = map_header_map_to_header_vec(response.headers());
-    let content_type: Option<String> = headers.iter().find(|item| item.name.eq("content-type")).map(|item| item.value.clone());
+    let content_type: Option<String> = headers
+        .iter()
+        .find(|item| item.name.eq("content-type"))
+        .map(|item| item.value.clone());
     let status = response.status().as_u16();
     let body = &response.text().await.unwrap_or_else(|e| e.to_string());
-    return Response {
+    Response {
         status,
         body: body.clone(),
         size: body.len().to_string().clone(),
         headers,
         elapsed: duration,
         content_type: content_type.unwrap().clone(),
-    };
+    }
 }
 
 fn map_header_map_to_header_vec(headers: &HeaderMap) -> Vec<Header> {
-    // TODO refactor
-    let mut response_headers_vec: Vec<Header> = Vec::new();
-    for (key, value) in headers.iter() {
-        let header_value = value.to_str().unwrap().to_string();
-        response_headers_vec.push(Header { name: key.to_string(), value: header_value, enabled: true });
-    }
-    return response_headers_vec;
+    headers
+        .iter()
+        .map(|(key, value)| Header {
+            name: key.to_string(),
+            value: value.to_str().unwrap().to_string(),
+            enabled: true,
+        })
+        .collect()
 }
 
 fn map_query_param_vec_to_hashmap(query_params: &Vec<QueryParam>) -> HashMap<String, String> {
-    return query_params.iter().filter_map(|item: &QueryParam| {
-        match item.enabled {
-            true => Some((item.name.clone(), item.value.clone())),
-            false => None
-        }
-    }).collect();
+    query_params
+        .iter()
+        .filter(|item| item.enabled)
+        .map(|item| (item.name.clone(), item.value.clone()))
+        .collect()
 }
 
 fn map_header_vec_to_header_map(headers: &Vec<Header>) -> HeaderMap {
-    headers.iter().filter_map(|item: &Header| {
-        match item.enabled && !item.name.is_empty() {
-            true => Some((HeaderName::from_str(&item.name).unwrap(), item.value.parse().unwrap())),
-            false => None
+    headers
+        .iter()
+        .filter(|item| item.enabled && !item.name.is_empty())
+        .map(|item| (HeaderName::from_str(&item.name).unwrap(), item.value.parse().unwrap()))
+        .collect()
+}
+
+impl Request {
+    pub fn get_reqwest_method(&self) -> reqwest::Method {
+        match &self.method {
+            RequestMethod::GET => reqwest::Method::GET,
+            RequestMethod::POST => reqwest::Method::POST,
+            RequestMethod::DELETE => reqwest::Method::DELETE,
+            RequestMethod::PATCH => reqwest::Method::PATCH,
+            RequestMethod::PUT => reqwest::Method::PUT,
         }
-    }).collect()
+    }
 }
 
 #[cfg(test)]
