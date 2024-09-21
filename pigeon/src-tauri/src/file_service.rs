@@ -42,13 +42,12 @@ pub fn add_history(request: Request, response: &Response) {
     let history_path: PathBuf = get_history_path();
     fs::write(&history_path, serde_json::to_string(&fs::read(&history_path)
         .map_or(History {
-                requests: vec![build_historic_request(&request, response)]
-            },
-            |item: Vec<u8>| {
-                let mut history: History = serde_json::from_str(&*String::from_utf8(item).unwrap()).unwrap();
-                history.requests.push(build_historic_request(&request, response));
-                return history;
-            })).unwrap()).unwrap();
+            requests: vec![build_historic_request(&request, response)]
+        }, |item: Vec<u8>| {
+            let mut history: History = serde_json::from_str(&*String::from_utf8(item).unwrap()).unwrap();
+            history.requests.push(build_historic_request(&request, response));
+            return history;
+        })).unwrap()).unwrap();
 }
 
 pub fn delete_collection(collection_name: String) {
