@@ -18,24 +18,24 @@ fn main() {
 async fn send_request(request: Request) -> String {
     let response = request_service::send_request(request).await;
     match &response {
-        Some(r) => return serde_json::to_string(r).unwrap(),
-        None => String::from("Error sending Request")
+        Some(r) => serde_json::to_string(r).unwrap(),
+        None => String::from("Error sending Request"),
     }
 }
 
 #[tauri::command]
 fn get_collections() -> Requests {
-    return file_service::get_files();
+    file_service::get_files()
 }
 
 #[tauri::command]
 fn add_collection(config: AddCollectionRequest) -> bool {
-    return file_service::add_collection(config);
+    file_service::add_collection(config)
 }
 
 #[tauri::command]
 fn get_history() -> History {
-    return file_service::get_history();
+    file_service::get_history()
 }
 
 #[tauri::command]
